@@ -88,4 +88,4 @@ Implement edition
 
 2019 Alejandro Rojo Gualix
 
-CC BY-NC Attribution & Non-commercial
+MIT — see [LICENSE](../../../LICENSE). Attribution is the only condition.

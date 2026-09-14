@@ -1,0 +1,278 @@
+/* Corpus browser — 2026 Alejandro Rojo Gualix — MIT */
+
+/* The opaque panel. theme.css textures the body, so without a background here
+   the pattern shows through behind the text. The rule lives in articulo.css and
+   in graphicOutput.css, and this page loads neither, so it carries its own. */
+#bw-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.2em 1.2em 4em;
+  background-color: var(--clr-background);
+  color: var(--clr-text);
+}
+
+#bw-head h1 {
+  font-size: 1.5em;
+  margin: 0 0 .2em;
+}
+
+.bw-lede {
+  opacity: .75;
+  max-width: 62ch;
+  margin: 0 0 1.2em;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+
+#bw-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 1em;
+  border-bottom: 1px solid rgba(128, 128, 128, .4);
+}
+
+.bw-tab {
+  background: none;
+  border: 1px solid transparent;
+  border-bottom: none;
+  color: inherit;
+  font: inherit;
+  padding: .45em 1em;
+  cursor: pointer;
+  opacity: .6;
+}
+
+.bw-tab:hover { opacity: 1; }
+
+.bw-tab.bw-on {
+  opacity: 1;
+  border-color: rgba(128, 128, 128, .4);
+  border-radius: 4px 4px 0 0;
+  margin-bottom: -1px;
+  background: rgba(128, 128, 128, .12);
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────────── */
+
+#bw-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .7em;
+  margin-bottom: .8em;
+}
+
+.bw-group {
+  border: 1px solid rgba(128, 128, 128, .35);
+  border-radius: 4px;
+  padding: .4em .7em .6em;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5em 1em;
+  margin: 0;
+}
+
+.bw-group legend {
+  font-size: .76em;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  opacity: .6;
+  padding: 0 .3em;
+}
+
+.bw-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: .35em;
+  cursor: pointer;
+}
+
+.bw-grow { flex: 1 1 18em; }
+.bw-grow input { width: 100%; }
+
+#bw-controls select,
+#bw-controls input[type="search"],
+#bw-controls input[type="text"],
+#bw-controls input[type="number"] {
+  font: inherit;
+  padding: .2em .35em;
+  max-width: 26em;
+}
+
+#bw-controls input[type="number"] { width: 5em; }
+
+/* Filters carry a title with the number behind them; say so. */
+.bw-group span[title] {
+  border-bottom: 1px dotted rgba(128, 128, 128, .6);
+  cursor: help;
+}
+
+/* ── Column chooser ───────────────────────────────────────────────────────── */
+
+#bw-columnbox {
+  border: 1px solid rgba(128, 128, 128, .35);
+  border-radius: 4px;
+  padding: .4em .7em;
+  margin-bottom: .8em;
+}
+
+#bw-columnbox summary {
+  cursor: pointer;
+  font-size: .9em;
+  opacity: .8;
+}
+
+#bw-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4em;
+  margin: .7em 0;
+}
+
+#bw-presets button,
+#bw-status button {
+  font: inherit;
+  font-size: .88em;
+  padding: .25em .8em;
+  background: rgba(128, 128, 128, .14);
+  color: inherit;
+  border: 1px solid rgba(128, 128, 128, .35);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+#bw-presets button:hover,
+#bw-status button:hover { background: rgba(128, 128, 128, .28); }
+
+#bw-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6em 1.4em;
+}
+
+#bw-columns fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .1em;
+}
+
+#bw-columns legend {
+  font-size: .74em;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  opacity: .55;
+  padding: 0;
+}
+
+#bw-columns label {
+  display: flex;
+  align-items: center;
+  gap: .35em;
+  font-size: .9em;
+  cursor: pointer;
+}
+
+/* ── Status bar ───────────────────────────────────────────────────────────── */
+
+#bw-status {
+  display: flex;
+  align-items: center;
+  gap: .6em;
+  padding: .4em 0;
+  font-size: .9em;
+}
+
+.bw-spacer { flex: 1; }
+#bw-count { opacity: .75; font-variant-numeric: tabular-nums; }
+.bw-note { opacity: .8; font-size: .88em; }
+
+/* ── Table ────────────────────────────────────────────────────────────────── */
+
+/* Wide content scrolls inside its own box: the page body never scrolls sideways. */
+#bw-tablewrap {
+  overflow-x: auto;
+  border-top: 1px solid rgba(128, 128, 128, .35);
+}
+
+#bw-tableel {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#bw-thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-align: left;
+  padding: .45em .7em;
+  white-space: nowrap;
+  cursor: pointer;
+  font-size: .84em;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  background: var(--clr-surface, rgba(128, 128, 128, .18));
+  border-bottom: 1px solid rgba(128, 128, 128, .45);
+}
+
+#bw-thead th:hover { background: rgba(128, 128, 128, .3); }
+
+#bw-tbody td {
+  padding: .28em .7em;
+  border-bottom: 1px solid rgba(128, 128, 128, .18);
+  vertical-align: baseline;
+}
+
+#bw-tbody tr:hover { background: rgba(128, 128, 128, .1); }
+
+.bw-num { text-align: right; font-variant-numeric: tabular-nums; }
+.bw-wide { max-width: 40ch; }
+.bw-dim { opacity: .55; font-size: .85em; }
+
+a.bw-glyph {
+  font-size: 1.6em;
+  line-height: 1;
+  text-decoration: none;
+  color: inherit;
+}
+
+a.bw-glyph.bw-small { font-size: 1.25em; }
+a.bw-glyph:hover { text-decoration: underline; }
+
+/* A row whose phonetic link Karlgren disputes. Marked, not hidden: it is where
+   a reader learns that this is reconstruction and not dogma. */
+tr.bw-clash td:first-child { box-shadow: inset 3px 0 0 #e0705a; }
+
+#bw-more {
+  display: block;
+  width: 100%;
+  margin-top: .6em;
+  padding: .55em;
+  font: inherit;
+  font-size: .9em;
+  background: rgba(128, 128, 128, .14);
+  color: inherit;
+  border: 1px solid rgba(128, 128, 128, .35);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+#bw-more:hover { background: rgba(128, 128, 128, .28); }
+
+/* ── Trees panel ──────────────────────────────────────────────────────────── */
+
+#bw-trees #pt-section {
+  height: auto;
+  overflow: visible;
+}
+
+#bw-trees #pt-tree {
+  max-height: 70vh;
+}
+
+@media (max-width: 700px) {
+  #bw-main { padding: .8em .6em 3em; }
+  .bw-wide { max-width: 24ch; }
+}

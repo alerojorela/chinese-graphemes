@@ -4,8 +4,8 @@ for chinese grapheme decomposition
 
 2019 Alejandro Rojo Gualix
 
-Creative Commons license
-CC BY-NC Attribution & Non-commercial
+MIT license
+see LICENSE at the repository root
 *************************************************/
 
 var useIPA = false;
@@ -239,8 +239,31 @@ copynode: boolean, reference or value, adicionalmente incorpora descendencia
 // ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ TEN EN CUENTA QUE TAMBIŃE PUEDES DEVOLVER UN NUEVO OBJETO, SIN MODIFICAR NADA
 var RecursiveAnnotation = function (id, fextractdata = getChildNodes, copynode = false) {
     if (id == '') return undefined;
-    var lg = logograms[id];
-    if (lg === undefined) return undefined;
+    var source = logograms[id];
+    if (source === undefined) return undefined;
+
+    // ONE NODE PER OCCURRENCE, not one per logogram, which is what `copynode`
+    // has always promised in its own comment above and never did.
+    //
+    // These graphs are not trees. A logogram can descend from the same radical
+    // by two different roads: 啊 takes 口 straight, as its meaning, and again
+    // through 阿, its sound, which contains 口 as well. Four of 口's 413
+    // relatives do that (呵 啊 唔 囔), and 哥 is 可 twice over on the way down.
+    // Annotating the shared entry made both occurrences THE SAME OBJECT, and
+    // whatever wrote to it last won: d3's partition layout stamps x and y on
+    // each node as it walks, so the second visit moved the first one's arc.
+    // 啊 came out at 206 degrees while its parent 阿 sat between 33 and 39,
+    // floating with nothing around it.
+    //
+    // A shallow copy is enough: what gets written per occurrence is the
+    // annotation (color, family, divisibility, children, namesubstrings), and
+    // everything read from the entry -- the definition, the etymology, the
+    // readings -- is only read. It also gives each occurrence its own COLOUR,
+    // which the shared object could not have: 啊 reaches 口 by meaning and 阿
+    // by sound, and both arcs used to take whichever was written last. Measured
+    // before: blue in both places. Now red under 阿 and blue under 口, which is
+    // the distinction the whole diagram exists to show.
+    var lg = copynode ? Copy(source) : source;
 
     AdditionalAnnotation(lg);
     // recursion attributes

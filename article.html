@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Alejandro Rojo">
+    <link rel="stylesheet" type="text/css" href="style/common.css" />
+    <link rel="stylesheet" type="text/css" href="style/articulo.css" />
+    <link rel="stylesheet" type="text/css" href="style/theme.css" />
+
+    <title>Recursion in Chinese phonosemantograms</title>
+    <link rel="stylesheet" type="text/css" href="style/article-toolbar.css">
+  <script src="js/article-toolbar.js"></script>
+</head>
+
+<body data-year="2019" data-lang-alt="article.es.html" data-license="cc-by" data-about="">
+    <main>
+
+
+        <h1>Introduction</h1>
+        <p>Every present-day Chinese grapheme is a logogram (a grapheme tied directly to a word or morpheme rather than to an idea or an image). They can still be classified by their original design as pictograms, ideograms or phonosemantograms.</p>
+        <p>This article deals with phonosemantograms; for pictograms and ideograms see the
+            <a href='../desarrolloEscritura/desarrolloEscritura.html'>hieroglyphic procedure</a>. For general
+            background see <a
+                href='https://en.wikipedia.org/wiki/Chinese_character_classification#Phono-semantic_compound_characters'>Wikipedia</a>.
+            The <strong>aim</strong> of this project is to <strong>visualise and measure how far phonosemantograms
+                divide</strong>.</p>
+        <p>In the sample (<a href='./browse.html'>click to browse every one of these graphemes</a>) close to 80 % are phonosemantograms:</p>
+        <figure>
+            <table>
+                <thead>
+                    <tr>
+                        <th>class (click through to the tables)</th>
+                        <th>frecuencia</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href='./browse.html?origin=pictographic&cols=etymology'>pictogramas</a></td>
+                        <td>227</td>
+                    </tr>
+                    <tr>
+                        <td><a href='./browse.html?origin=ideographic&cols=etymology'>ideogramas</a></td>
+                        <td>1840</td>
+                    </tr>
+                    <tr>
+                        <td><a href='./browse.html?origin=pictophonetic&cols=etymology'>fonosemagramas</a></td>
+                        <td>6966</td>
+                    </tr>
+                    <tr>
+                        <td><a href='./browse.html?cols=everything'>TOTAL</a></td>
+                        <td>9033</td>
+                    </tr>
+                </tbody>
+            </table>
+        </figure>
+
+        </br>
+        <h2>Analysing graphemes, and their complexity</h2>
+        <p>Consider a few ways of decomposing them:</p>
+        <ol start=''>
+            <li>
+                <p>not recursive:</p>
+                <ul>
+                    <li>
+                        <p>by stroke count (that is, by continuous strokes)</p>
+                        <p>the radicals with the most strokes are 龍 &#39;dragon&#39; and 龜 &#39;turtle&#39; at 16, and
+                            龠 &#39;flute&#39; at 17. See this <a
+                                href='http://nihonshock.com/2009/10/crazy-kanji-highest-stroke-count/'>external
+                                link</a></p>
+                    </li>
+
+                </ul>
+            </li>
+            <li>
+                <p>recursive, which can be:</p>
+                <ol start=''>
+                    <li>
+                        <p>etymological: phonosemantograms are recursive (in their phonetic and semantic components),
+                            and so are some ideograms; that is, certain units can enter the composition of larger
+                            ones.</p>
+                        <p>That ideograms are recursive too can be checked without leaving the data:
+                            <strong>680 of the 1840 (37 %) appear inside another grapheme</strong>, and in 664
+                            of those cases <strong>both graphic decompositions</strong> agree, the n-ary one
+                            and Wikimedia's binary one, which are separate sources.
+                            <a href="./analysis.html?q=%E6%AD%BB">死</a> <code>dead; death</code> is one: it sits
+                            inside 屍 <code>corpse</code>, 斃 and 毙 <code>to die</code>, 葬
+                            <code>to bury</code> and 薨 <code>death of a prince</code>. The coherence can be read
+                            off the definitions; no gloss is needed to point it out.</p>
+                        <p>NOTE: decomposition proves that <strong>the piece is there</strong>; it does not prove
+                            <strong>why</strong>. The composition glosses the data ships with, such as «a corpse
+                            死 laid 廾 to rest under the grass 艹», are <strong>learner mnemonics</strong>,
+                            not etymology with an apparatus, and nothing in this article rests on them.</p>
+                    </li>
+                    <li>
+                        <p>graphic: it follows the division of space, as encoded by the ideographic description
+                            characters <code>⿰ ⿱ ⿲ ⿳ or ⿴ ⿵ ⿶ ⿷ ⿸ ⿹ ⿺ or ⿻</code></p>
+                        <p>鳝 = ⿰⿱⿱⺈⿵⿰丨冂⿱⿻一丨一一⿱⿱⿰丶丷羊⿱⿱⿰丶丷一⿱⿰丨冂一</p>
+                    </li>
+
+                </ol>
+                <p>NOTE: the etymological and the graphic division do not always coincide</p>
+            </li>
+
+        </ol>
+        <p> </p>
+        <h2>Fonosemagramas</h2>
+        <p>Phonosemantograms are units made of a <strong>phonetic component</strong> (which encodes the
+            pronunciation) and a semantic one. The <strong>semantic</strong> component only disambiguates the written
+            sign and has no expression in speech at all (which shows that writing is always more precise than speech);
+            it files the concept under an <strong>unsystematic taxonomy</strong> of the world, by material for
+            instance: water 氵 for liquids or actions on liquids, wood 木 for furniture among others, hand 扌 for
+            manual actions, and so on.</p>
+        <figure>
+            <a href="./analysis.html?q=園">
+                <img src="img/graphemes/園.png" alt="fonosemagrama 園" />
+            </a>
+            <figcaption></figcaption>
+        </figure>
+        <ul class="tree">
+            <li>
+                <a href="./analysis.html?q=園" target="_blank">園</a>
+                <span>garden, park; orchard</span>
+                <span>yuán</span>
+                <span class="ipa"></span>
+                <ul>
+                    <li>
+                        <a href="./analysis.html?q=囗" target="_blank" style="color: blue">囗</a>
+                        <span>enclosure; border</span>
+                        <span style="color: blue">wéi</span>
+                        <span class="ipa">uei˧˥</span>
+                    </li>
+                    <li>
+                        <a href="./analysis.html?q=袁" target="_blank" style="color: red">袁</a>
+                        <span>robe; surname</span>
+                        <span style="color: red">yuán</span>
+                        <span class="ipa"></span>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+
+        <p>From here on the colours mark the <span style="color: blue">semantic</span> and <span
+                style="color: red">phonetic</span> component</p>
+
+        <p>NOTE: <strong>the class is not homogeneous.</strong> Of the 6966 phonosemantograms in the
+            sample, <strong>6760 declare both parts</strong>; 157 do not say which is the
+            phonetic one and 49 do not say which is the semantic one. A count by «phonosemantogram»
+            therefore includes 206 units that cannot be decomposed.</p>
+
+        <p>NOTE: <strong>the radical is not the semantic component.</strong> They agree almost
+            always, 6646 out of 6917, but they diverge in
+            <a href="./browse.html?radicaldiffers=1">271 cases</a>, and that is where the difference
+            between the two shows: the radical is the dictionary's postal address, the semantic
+            component is an etymological claim.
+            <a href="./analysis.html?q=%E4%B8%BE">举</a> <code>to raise</code> is filed under
+            丶 and means with 扌 'hand'; <a href="./analysis.html?q=%E4%B9%A9">乩</a>
+            <code>to divine</code> is filed under 乚 and means with 占 'to divine'.</p>
+
+        </br>
+        <h3>Choosing the phonetic component</h3>
+
+        <figure>
+            <a href="./analysis.html?q=鲨">
+                <img src="img/graphemes/鲨.png" alt="recursividad en 鲨" onerror="this.style.display = 'none';">
+            </a>
+            <figcaption>fig. 鲨 shark shā</figcaption>
+        </figure>
+        <ul class="tree">
+            <li>
+                <a href="./analysis.html?q=鲨" target="_blank">鲨</a>
+                <span>shark</span>
+                <span>shā</span>
+                <ul>
+                    <li>
+                        <a href="./analysis.html?q=沙" target="_blank" style="color: red">沙</a>
+                        <span>sand, gravel, pebbles; granulated</span>
+                        <span style="color: red">shā</span>
+                        <ul>
+                            <li>
+                                <a href="./analysis.html?q=氵" target="_blank" style="color: blue">氵</a>
+                                <span>water</span>
+                                <span style="color: blue">shuǐ</span>
+                            </li>
+                            <li>
+                                <a href="./analysis.html?q=少" target="_blank" style="color: red">少</a>
+                                <span>few, little; less; inadequate</span>
+                                <span style="color: red">shào</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="./analysis.html?q=鱼" target="_blank" style="color: blue">鱼</a>
+                        <span>fish</span>
+                        <span style="color: blue">yú</span>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p>Here a classifier 鱼 for sea animals meets a phonetic component /ʂa˥/ 沙 that supplies the pronunciation of 鲨.</p>
+        <p>Several logograms shared that pronunciation, however, which raises a question about the design
+            of the grapheme: why was 沙 chosen and not another one that sounds the same? Because the water
+            sub-component <code>氵</code> reinforces the meaning? Because of its link with sand <code>沙</code>?</p>
+
+        <p>The sample answers, in three steps.</p>
+
+        <p><strong>There was almost never anything to choose between.</strong> Sixteen graphemes read <em>shā</em>,
+            but only <strong>two</strong> ever serve as a phonetic component: 杀 and
+            沙. And in general, taking as candidates those in the same
+            <a href="#karlgren">Karlgren phonetic series</a> that are actually used to write a
+            sound, <strong>in 54.6 % of the 1520 measurable cases there was a single candidate</strong>.</p>
+
+        <p><strong>Reinforcement does not happen.</strong> The phonetic component already containing the
+            semantic one, as the 氵 of 沙 does, occurs in <strong>138 of 6760 (2.0 %)</strong>, and shuffling the
+            phonetic components at random yields <strong>183 (2.7 %)</strong>: below chance.</p>
+
+        <p><strong>Where there was a choice, 690 cases, economy decides.</strong></p>
+        <figure>
+            <table>
+                <thead>
+                    <tr>
+                        <th>the one chosen is…</th>
+                        <th>observado</th>
+                        <th>by chance</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>the one that already composes more graphemes</td>
+                        <td>78,8 %</td>
+                        <td>42,6 %</td>
+                        <td>×1,85</td>
+                    </tr>
+                    <tr>
+                        <td>the one with fewer strokes</td>
+                        <td>66,2 %</td>
+                        <td>40,7 %</td>
+                        <td>×1,63</td>
+                    </tr>
+                    <tr>
+                        <td><em>control:</em> the one with more strokes</td>
+                        <td>21,0 %</td>
+                        <td>42,2 %</td>
+                        <td>×0,50</td>
+                    </tr>
+                </tbody>
+            </table>
+            <figcaption>
+                <p>Chance counts the ties. The control row is what turns this into a
+                    measurement: an artefact would not invert.</p>
+            </figcaption>
+        </figure>
+
+        <p>The piece already in circulation wins, and so does the one written with fewer strokes.
+            Three examples, from the typical one to the one that breaks the rule:</p>
+        <ul>
+            <li><a href="./analysis.html?q=%E5%93%BA">哺</a> 'to chew, to feed' picks
+                <strong>甫</strong>, which composes twenty others, over the shorter <strong>父</strong>
+                'father': <strong>the used piece wins, not the cheap one</strong>.</li>
+            <li><a href="./analysis.html?q=%E5%80%9A">倚</a> 'to lean on' picks <strong>奇</strong>
+                (composes 17) over <strong>可</strong> (5 strokes, composes 16): two equally
+                common pieces, and <strong>neither related to «leaning»</strong>.</li>
+            <li><a href="./analysis.html?q=%E5%84%BB">儻</a> 'if perchance' does the opposite of everything:
+                it picks <strong>黨</strong>, twenty strokes and no offspring, with
+                <strong>尚</strong> at hand, eight strokes and twenty-three. <strong>It is a tendency, not a law.</strong></li>
+        </ul>
+
+        <p>And meaning, looked at head on, does not motivate the choice either: the phonetic component
+            chosen shares some word of its definition with the grapheme in <strong>2.5 %</strong> of
+            cases, and a rival from its own group does so in <strong>1.8 %</strong>.</p>
+
+        <p>NOTE: both figures come with a catch. <strong>«Composes a lot» is partly a consequence of
+            having been chosen</strong>, so what is measured is that the system concentrates the work
+            in few pieces. And the meaning test only sees the kinship that surfaces in the
+            definition: it does not see that <a href="./analysis.html?q=%E5%81%9C">停</a> 'to stop' is
+            written with <strong>亭</strong> 'pavilion', which is where one stops. The 2.5 % is
+            a floor.</p>
+
+        </br>
+        <h3>The branch only sounds alike in Old Chinese</h3>
+        <p>Saying that 沙 <em>/ʂa˥/</em> gives the pronunciation of 鲨 works because Mandarin still
+            preserves it there. Almost never is that so: <strong>the phonetic relation is two thousand
+            years old and Mandarin has erased it</strong>. Any branch shows it:</p>
+        <ul class="tree">
+            <li>
+                <a href="./analysis.html?q=%E5%90%84" target="_blank" style="color: red">各</a>
+                <span>individual; each, every</span>
+                <span style="color: red">gè · *kˤak</span>
+                <ul>
+                    <li>
+                        <a href="./analysis.html?q=%E6%A0%BC" target="_blank">格</a>
+                        <span>form, pattern, standard</span>
+                        <span>gé · *kˤrak</span>
+                    </li>
+                    <li>
+                        <a href="./analysis.html?q=%E6%B4%9B" target="_blank">洛</a>
+                        <span>a river in Shanxi</span>
+                        <span>luò</span>
+                        <ul>
+                            <li>
+                                <a href="./analysis.html?q=%E8%90%BD" target="_blank">落</a>
+                                <span>to fall, to drop</span>
+                                <span>luò · *kə.rˤak</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p>In Mandarin these read <em>gè, gé, luò</em> and look like no family at all; in reconstructed
+            Old Chinese they are <code>*kˤak</code>, <code>*kˤrak</code>, <code>*kə.rˤak</code> and the
+            family is beyond dispute. That is why the Baxter-Sagart reconstruction outranks pinyin here: it is
+            the evidence, and the gloss is the commentary. It covers, mind you, <strong>only 35 % of the
+            sample</strong>, 3359 of 9574, so about two thirds of the graphemes admit no more than «not
+            attested in the classical corpus».
+            <a href="./browse.html#bw-trees">The trees</a> are built on this criterion.</p>
+
+        </br>
+        <h3 id="karlgren">Independent verification: Karlgren's series</h3>
+        <p>That a component is the phonetic one is a claim, and it is worth checking against a
+            source other than the one that made it. There is one: the <code>GSR</code> field, the number of
+            <strong>Karlgren's phonetic series</strong>. If two related graphemes fall in the
+            same series, the relation is confirmed from outside.</p>
+        <p>Of the checkable edges, <strong>1521 are confirmed (88.1 %)</strong> and
+            <a href="./browse.html?gsrclash=1"><strong>205 are disputed (11.9 %)</strong></a>.
+            That 12 % is not noise in the way: it is where a reader learns that this is reconstruction and not
+            dogma, and that is why it is marked rather than hidden.</p>
+        <p>And there is a graver case, with a signature of its own: when the component recorded as
+            <span style="color: blue">semantic</span> falls in the character's series and the one
+            recorded as <span style="color: red">phonetic</span> falls elsewhere, <strong>the two
+            slots are the wrong way round</strong>. Of the 854 graphemes where all three carry a series,
+            <a href="./browse.html?swapped=1"><strong>13</strong></a>: 勒 協 否 欿 荒 誾 謠 躅 閔
+            魏 鸞 鼙 齋. In <a href="./analysis.html?q=%E5%8B%92">勒</a> <code>to tighten</code>,
+            for instance, the data gives 力 as semantic and 革 as phonetic, and Karlgren puts 勒 and
+            力 in series 0928 and 革 in 0931. One of them is wrong, and the tree of
+            <a href="#han">瀚</a> at the end of this page shows a case where there is no doubt which.</p>
+
+        </br>
+        <h3>Semantic recursion</h3>
+        <p>Phonosemantic composition is recursive, as can be seen: a grapheme made of a phonetic and a
+            semantic component can itself be a constituent of another grapheme.</p>
+        <figure>
+            <a href="./analysis.html?q=%E5%B7%B9">
+                <img src="img/graphemes/巹.png" alt="recursividad semántica en 巹" onerror="this.style.display = 'none';">
+            </a>
+            <figcaption>fig. 巹 nuptial wine cup jǐn</figcaption>
+        </figure>
+        <p>Something uncommon can be seen here: a blue branch that is not terminal</p>
+        <p>It is uncommon because <strong>semantic recursion is very limited</strong> next to phonetic
+            recursion; graphemes mostly enter as phonetic components and only a minority, 25 found in the
+            sample, do so as semantic ones.</p>
+        </br>
+        <h3>Maximum divisibility</h3>
+
+        <figure>
+            <table>
+                <thead>
+                    <tr>
+                        <th>divisibilidad</th>
+                        <th>frequency, no. of graphemes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>4</td>
+                        <td>4</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>93</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>1392</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>5473</td>
+                    </tr>
+                </tbody>
+            </table>
+            <figcaption><a href='./browse.html?origin=pictophonetic&cols=shape&sort=divEty'>Divisibility list for the grapheme
+                        sample</a></figcaption>
+        </figure>
+        <p>The <strong>maximum level of divisibility</strong> observed for phonosemantograms is 4, and it is
+            reached by 4 of them: <a href='./analysis.html?q=%E7%A4%B4'>礴</a>, <a href='./analysis.html?q=%E8%87%9F'>臟</a>, <a
+                href='./analysis.html?q=%E8%98%A9'>蘩</a> and <a href='./analysis.html?q=%E8%A0%AE'>蠮</a></p>
+
+        </br>
+        <figure>
+            <a href="./analysis.html?q=蠮">
+                <img src="img/graphemes/蠮.png" alt="divisibilidad máxima (4) en 蠮" onerror="this.style.display = 'none';">
+            </a>
+            <figcaption>fig. maximum divisibility (4) in 蠮 'bee'</figcaption>
+        </figure>
+        <ul class="tree">
+            <li>
+                <a href="./analysis.html?q=蠮" target="_blank">蠮</a>
+                <span>bee</span>
+                <span>yē</span>
+                <ul>
+                    <li>
+                        <a href="./analysis.html?q=虫" target="_blank" style="color: blue">虫</a>
+                        <span>insect, worm; mollusk</span>
+                        <span style="color: blue">chóng</span>
+                        <ul>
+                            <li>
+                                <a href="./analysis.html?q=中" target="_blank" style="color: red">中</a>
+                                <span>central; center, middle; amidst; to hit (target), to attain; China; Chinese</span>
+                                <span style="color: red">zhòng</span>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="./analysis.html?q=翳" target="_blank" style="color: red">翳</a>
+                        <span>shade, screen; to hide, to screen</span>
+                        <span style="color: red">yì</span>
+                        <ul>
+                            <li>
+                                <a href="./analysis.html?q=殹" target="_blank" style="color: red">殹</a>
+                                <span>an echo</span>
+                                <span style="color: red">yì</span>
+                                <ul>
+                                    <li>
+                                        <a href="./analysis.html?q=医" target="_blank" style="color: red">医</a>
+                                        <span>to cure, to heal, to treat; doctor; medicine</span>
+                                        <span style="color: red">yī</span>
+                                        <ul>
+                                            <li>
+                                                <a href="./analysis.html?q=匸" target="_blank" style="color: red">匸</a>
+                                                <span>box</span>
+                                                <span style="color: red">xì</span>
+                                            </li>
+                                            <li>
+                                                <a href="./analysis.html?q=矢" target="_blank" style="color: blue">矢</a>
+                                                <span>arrow, dart; to vow, to swear</span>
+                                                <span style="color: blue">shǐ</span>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <a href="./analysis.html?q=殳" target="_blank" style="color: blue">殳</a>
+                                        <span>tool, weapon</span>
+                                        <span style="color: blue">shū</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="./analysis.html?q=羽" target="_blank" style="color: blue">羽</a>
+                                <span>feather, plume; wings</span>
+                                <span style="color: blue">yǔ</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        </br>
+        <figure id="han">
+            <a href="./analysis.html?q=瀚">
+                <img src="img/graphemes/瀚.png" alt="divisibilidad tres en 瀚" onerror="this.style.display = 'none';">
+            </a>
+            <figcaption>fig. divisibility three in 瀚 'wide, vast'</figcaption>
+        </figure>
+        <ul class="tree">
+            <li>
+                <a href="./analysis.html?q=瀚" target="_blank">瀚</a>
+                <span>wide, vast, extensive</span>
+                <span>hàn</span>
+                <ul>
+                    <li>
+                        <a href="./analysis.html?q=氵" target="_blank" style="color: blue">氵</a>
+                        <span>water</span>
+                        <span style="color: blue">shuǐ</span>
+                    </li>
+                    <li>
+                        <a href="./analysis.html?q=翰" target="_blank" style="color: red">翰</a>
+                        <span>pen, pencil, writing brush</span>
+                        <span style="color: red">hàn</span>
+                        <ul>
+                            <li>
+                                <a href="./analysis.html?q=倝" target="_blank" style="color: red">倝</a>
+                                <span>sunrise, dawn</span>
+                                <span style="color: red">gàn</span>
+                                <ul>
+                                    <li>
+                                        <a href="./analysis.html?q=龺" target="_blank" style="color: blue">龺</a>
+                                        <span>sunlight; the rays of the sun</span>
+                                        <span style="color: blue">gān</span>
+                                    </li>
+                                    <li>
+                                        <a href="./analysis.html?q=人" target="_blank" style="color: red">人</a>
+                                        <span>man, person; people</span>
+                                        <span style="color: red">rén</span>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="./analysis.html?q=羽" target="_blank" style="color: blue">羽</a>
+                                <span>feather, plume; wings</span>
+                                <span style="color: blue">yǔ</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        </br>
+
+        <p>NOTE: <strong>the data gets the last level of this tree wrong.</strong> It gives 倝
+            龺 as its semantic component and 人 as its phonetic one, and it is the other way round.
+            Old Chinese settles it: 倝 <code>*[k]ˤar-s</code>, 幹 <code>*[k]ˤar-s</code> and
+            翰 <code>*m-kˤar-s</code> fall in the same Karlgren phonetic series, 0140, and
+            干 in the adjacent one; 人 <code>*ni[ŋ]</code> is in 0388 and shares with them
+            neither onset, nor rhyme, nor coda. The sound comes from the 干/龺 side and 人 is a stroke.
+            The source itself confirms it by another route: its hint for 倝 reads only
+            <code>sunlight</code>, which describes 龺, and the one for 幹 reads
+            <code>Sunlight 龺 suggests "dry"; a club 人干 suggests "invade"</code>, where
+            人 is a drawn club and not a sound.</p>
+
+        <p>The tree is left as it stands because <strong>it is drawn from the data, and correcting it by hand
+            would depart from the source without saying so</strong>. The case is not unique: there are
+            <a href="./browse.html?swapped=1">thirteen graphemes</a> in which the component
+            recorded as semantic is precisely the one that sounds alike, and the one recorded as
+            phonetic is not. It is measured in <a href="./sources.html">the sources</a>.</p>
+
+        </br>
+        <h3>The other recursion, the graphic one</h3>
+        <p>The 4 above is <strong>etymological</strong> divisibility. The <strong>graphic</strong> one is
+            still owed, announced at the start as a different way of decomposing; it reaches much
+            further, because it counts strokes inside strokes and not meanings inside meanings.
+            There are three measures and they should not be confused:</p>
+        <figure>
+            <table>
+                <thead>
+                    <tr>
+                        <th>medida</th>
+                        <th>where it comes from</th>
+                        <th>maximum</th>
+                        <th>who reaches it</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>etymological</td>
+                        <td>semantic + phonetic component</td>
+                        <td>4</td>
+                        <td>礴 臟 蘩 蠮</td>
+                    </tr>
+                    <tr>
+                        <td>graphic, n-ary</td>
+                        <td>ideographic description <code>⿰⿱⿲…</code></td>
+                        <td>8</td>
+                        <td>儺 擲 攤 灘 癱 縮 缩 蓿 襫 躑</td>
+                    </tr>
+                    <tr>
+                        <td>graphic, binary</td>
+                        <td>Wikimedia's left · right decomposition</td>
+                        <td>7</td>
+                        <td>擲 躑</td>
+                    </tr>
+                </tbody>
+            </table>
+            <figcaption>
+                <p><a href='./browse.html?cols=shape&sort=divIds'>The three columns, grapheme by grapheme</a></p>
+            </figcaption>
+        </figure>
+        <p>The case that separates them is <a href="./analysis.html?q=%E8%BA%91">躑</a>
+            <code>to hesitate</code>: <strong>7 levels</strong> if it is always split in two,
+            <strong>8</strong> if splitting in three or more is allowed, and only <strong>1</strong>
+            etymologically: it splits once, into 足 'foot' and 鄭, and that is the end of it. Saying
+            «divisibility» without saying which of the three is the shortest road to two correct
+            measurements contradicting each other: it happened in this project's own notes, where one
+            said 7 and another said 8 <strong>of the same character</strong>.</p>
+
+    </main>
+
+</body>
+
+</html>

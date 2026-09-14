@@ -1,0 +1,101 @@
+/***************************************************************
+ *              THEME — Ember (warm amber/copper)
+ *  A warm, earthy palette built around amber and oxidized copper
+ *
+ *  Variable naming: --clr-<category>[-variant]
+ *  Legacy --color-* aliases kept for backward compatibility
+ *  with articulo.css, common.css, timeline.css, tarjeta.css, etc.
+ ***************************************************************/
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK THEME (default)
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+
+	/* --- Text ------------------------------------------------- */
+	--clr-text:              #d0c8be;   /* primary body text          */
+	--clr-text-secondary:    #8a8078;   /* captions, metadata, muted  */
+	--clr-text-heading:      #c8a060;   /* headings                   */
+
+	/* --- Links ------------------------------------------------ */
+	--clr-a:                 #68a8c8;   /* default link color         */
+
+	/* --- Surfaces --------------------------------------------- */
+	--clr-background:        #1a1714;   /* page base                  */
+	--clr-surface:           #28221c;   /* elevated panels, details   */
+	--clr-control-bg:        #221d18;   /* form control fill          */
+
+	/* --- Borders ---------------------------------------------- */
+	--clr-lines:             #584430;   /* decorative / structural    */
+	--clr-control-border:    #70583e;   /* form control borders       */
+
+	/* --- Accents ---------------------------------------------- */
+	--clr-highlight:         #c88a48;   /* primary accent             */
+	--clr-highlight-mild:    #907858;   /* secondary accent (buttons) */
+	--clr-hover:             #e0b870;   /* hover / active             */
+	--clr-glossed:           #e8c898;   /* ruby base text (glossed)   */
+
+	/* --- Legacy aliases (do not use in new code) -------------- */
+	--color-foreground:  var(--clr-text);
+	--color-background:  var(--clr-background);
+	--color-highlight:   var(--clr-highlight);
+	--color-heading:     var(--clr-text-heading);
+	--color-hover:       var(--clr-hover);
+	--clr-non-focused:   var(--clr-surface);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT THEME
+   ═══════════════════════════════════════════════════════════════ */
+[data-theme="light"] {
+
+	/* --- Text ------------------------------------------------- */
+	--clr-text:              #2a2420;
+	--clr-text-secondary:    #7a7068;
+	--clr-text-heading:      #6e4820;
+
+	/* --- Links ------------------------------------------------ */
+	--clr-a:                 #28608a;
+
+	/* --- Surfaces --------------------------------------------- */
+	--clr-background:        #f8f4ee;
+	--clr-surface:           #e8e0d4;
+	--clr-control-bg:        #f0ebe4;
+
+	/* --- Borders ---------------------------------------------- */
+	--clr-lines:             #a89070;
+	--clr-control-border:    #8a7858;
+
+	/* --- Accents ---------------------------------------------- */
+	--clr-highlight:         #8a5c28;
+	--clr-highlight-mild:    #7a6840;
+	--clr-hover:             #a06828;
+	--clr-glossed:           #4a3018;   /* ruby base text (glossed)   */
+
+	/* --- Legacy aliases --------------------------------------- */
+	--color-foreground:  var(--clr-text);
+	--color-background:  var(--clr-background);
+	--color-highlight:   var(--clr-highlight);
+	--color-heading:     var(--clr-text-heading);
+	--color-hover:       var(--clr-hover);
+	--clr-non-focused:   var(--clr-surface);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   BODY BACKGROUND (texture pattern)
+   ═══════════════════════════════════════════════════════════════ */
+body {
+	background-color: #141210;
+	background-image: url(
+		data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAFElEQVQImWNgIATu3bv3H78AUQAAtv8HM7euFB8AAAAASUVORK5CYII=
+	);
+	background-repeat: repeat;
+	background-blend-mode: soft-light;
+}
+[data-theme="light"] body {
+	background-color: #f8f4ee;
+	background-blend-mode: normal;
+}

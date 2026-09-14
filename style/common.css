@@ -1,8 +1,53 @@
 /**************************************************************
  *                      	COMUNES
  **************************************************************/
+/* Default fallback values (overridden by theme files) */
+:root {
+	--clr-text:             black;
+	--clr-text-secondary:   #666;
+	--clr-text-heading:     purple;
+
+	--clr-a:                blue;
+
+	--clr-background:       white;
+	--clr-surface:          #e8e8e8;
+	--clr-control-bg:       #f4f4f4;
+
+	--clr-lines:            purple;
+	--clr-control-border:   #999;
+
+	--clr-highlight:        purple;
+	--clr-highlight-mild:   rgb(131, 117, 131);
+	--clr-hover:            rgb(151, 0, 151);
+
+	/* Legacy */
+	--clr-non-focused:      var(--clr-surface);
+}
 
  /*           <p contenteditable="true">This is an editable paragraph.</p>  */
+
+
+/* word mention, It is different from use
+Su correlato en el discurso oral son vocalizaciones como <span class="mention">ahá/mmm</span>, o expresiones del tipo <span class="mention">ya/sí/vale</span>.
+*/
+span.mention {
+	font-style: italic;
+}
+
+
+/* modal windows must appear in the forefront */
+.modal {
+	z-index: 1000;
+}
+
+
+img.inline {
+	width: 1em;
+	margin-left: 0.3em;
+	margin-right: 0.3em;
+	vertical-align: middle;
+
+}
 
 
 /***************************
@@ -26,7 +71,19 @@
 	align-items: flex-start;
   }
  
-
+  div.twocolumns>* {
+	display: inline-block;
+	width: 48%;
+  }
+  div.threecolumns>* {
+	display: inline-block;
+	width: 30%;
+  } 
+  div.fourcolumns>* {
+	display: inline-block;
+	width: 22%;
+  }
+  /*
   .columns div.twocolumns {
 	width: 50%;
   }
@@ -38,7 +95,58 @@
   .columns div.fourcolumns  {
 	width: 25%;
   }
+  */
 
+
+/******************************
+		figure img 
+*******************************/
+
+/* table adjusts figure caption to image width */
+figure {
+    display: table;
+    margin: 30px auto;
+}
+figure>* {
+	display: table-row;
+	text-align: center;
+}
+
+figcaption {
+    display: table-caption;
+    caption-side: bottom;
+    padding: 5px 8px;
+}
+
+
+figure>figcaption {
+	font-style: italic;	
+	text-align: center;
+}
+
+figure img  {
+	max-width: 100%;
+}
+
+/* not in table */
+figure>img, figure>a>img {
+	transition: transform .3s; /* scale animation */
+}
+/* zoom in frame */
+figure>img:hover, figure>a>img:hover {   
+	padding:10px;
+
+
+	background-color: var(--clr-background, white);
+	border-radius: 3px;
+	border: 1px dotted var(--clr-lines, #aaa);
+	-webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+	-moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+	box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+	transform: scale(1.5);
+
+
+}
 
 /***************************
 ****************************
@@ -63,10 +171,69 @@ table.flankedtable td:nth-child(3),table.flankedtable td:nth-child(3) {
 	text-align: left;
 }
 
+
+
+
+/* Una tabla con secciones de filas tbody */
+/* USADA POR vocabulario.html */
+
+.rowsections-table>thead>tr {
+	height: 50px;
+
+	border-bottom: 5px solid var(--clr-lines, #ccc);
+	background-color: rgba(128, 128, 128, 0.15);
+}
+
+.rowsections-table td {
+	padding: 10px 5px;
+
+	vertical-align: top;
+}
+
+.rowsections-table td:nth-child(1) {
+	font-family: 'Courier New', Courier, monospace;
+}
+
+/* Primera celda de la sección */
+.rowsections-table>tbody>tr:nth-child(1)>td:nth-child(1) {
+
+	border-top: 2px solid var(--clr-highlight, purple);
+	/*
+	border-left: 2px solid purple;
+	*/
+	writing-mode: sideways-lr;
+}
+
+.rowsections-table>tbody:nth-child(odd) {
+	background-color: rgba(128, 200, 180, 0.08);
+}
+
+/* banda vertical de sección */
+.rowsections-table>tbody:nth-child(odd) td:nth-child(1) {
+	background-color: rgba(128, 200, 180, 0.15);
+}
+
+.rowsections-table>tbody:nth-child(even) {
+	background-color: rgba(180, 128, 200, 0.08);
+}
+
+/* banda vertical de sección */
+.rowsections-table>tbody:nth-child(even) td:nth-child(1) {
+	background-color: rgba(180, 128, 200, 0.15);
+}
+
+.rowsections-table tr:hover {
+	color: var(--color-hover, var(--color-foreground));
+	background-color: rgba(128, 128, 128, 0.2);
+	border-left: 5px solid var(--clr-highlight, #f8cff8);
+	border-right: 5px solid var(--clr-highlight, #f8cff8);
+}
+
+
+
+
 /***************************
-****************************
-	RATIO CONTAINER
-****************************
+*	RATIO CONTAINER
 ***************************/  
 /* http://www.mademyday.de/css-height-equals-width-with-pure-css.html */
 
@@ -78,9 +245,13 @@ table.flankedtable td:nth-child(3),table.flankedtable td:nth-child(3) {
 
   .square:before {
     content: "";
-    display: block;
+	display: block;
+
+	/* relates height with width
+	/* 100% initial ratio of 1w:1h */
+	/* 200% initial ratio of 1w:2h */
     padding-top: 100%;
-    /* initial ratio of 1:1*/
+
   }
 
   .square div:first-child {
@@ -95,9 +266,7 @@ table.flankedtable td:nth-child(3),table.flankedtable td:nth-child(3) {
 
 
 /***************************
-****************************
-		license
-****************************
+*		 LICENSE
 ***************************/  
 .license {
 	height: 25px;
@@ -112,11 +281,12 @@ table.flankedtable td:nth-child(3),table.flankedtable td:nth-child(3) {
 	align-items: flex-end;
 
 }
+
 header .license {
-	border-bottom: 1px dotted blueviolet;
+	border-bottom: 1px dotted var(--clr-lines);;
 }
 footer .license {
-	border-top: 1px dotted blueviolet;
+	border-top: 1px dotted var(--clr-lines);;
 }
 
 .license a {
@@ -148,9 +318,7 @@ header.attached {
 
 
 /***************************
-****************************
-		selections
-****************************
+*		selections
 ***************************/  
 aside.attachedleft {
 	position: fixed;
@@ -167,9 +335,7 @@ aside.attachedleft {
 
 
 /***************************
-****************************
-			TABS
-****************************
+*			TABS
 ***************************/  
       /* You needA flex container can't be set a none display, wrap it with a div tab */
 
@@ -203,7 +369,95 @@ aside.attachedleft {
         filter: brightness(1.25);
         cursor: pointer;
 	  }
-	  
+
+
+
+
+/******************************
+*		NOTES, WARNINGS 
+******************************/
+.note {
+	margin: 5px 0;
+	padding: 10px 10px;
+
+	border-left: 3px solid var(--clr-lines);
+	font-size: 90%;
+}
+.important {
+	border-left: 3px solid red;
+	font-style: italic;
+	font-size: 110%;
+}
+.warning {
+	border-left: 3px solid orange;
+	font-style: italic;
+	font-size: 110%;
+}
+.error {
+	border-left: 3px solid red;
+	font-style: italic;
+	font-size: 110%;
+}
+
+.source {
+    border-left: 3px solid var(--clr-lines);
+    font-size: 90%;
+}
+figcaption .source {
+	margin-left: 10px;
+	padding-left: 5px;
+    border-left: 3px solid var(--clr-lines);
+	color: var(--clr-text-secondary);
+    font-size: 90%;
+}
+
+/******************************
+*			TOOLTIP 
+******************************/
+/*
+HTML
+	<div id="word_tooltip" class="tooltip"></div>
+JQUERY DYNAMIC
+	// Define the div for the tooltip
+	var tooltip_obj = $('<div>').appendTo('body')
+		.attr("id", "word_tooltip")
+		.attr("class", "tooltip")
+		.css("visibility", "visible");
+
+
+*/
+div.tooltip {
+	position: absolute;
+	max-width: 300px;
+	padding: 4px;
+  
+  	word-wrap: normal;
+	text-align: left;
+  
+	opacity: 0.9;
+	background: var(--clr-surface);
+	border-radius: 8px;
+	pointer-events: none;
+
+	visibility: hidden;
+}
+div.tooltip th {
+	font-size: 1.5em;
+	border-bottom: 1px solid var(--clr-lines);
+	color: var(--clr-highlight);
+}
+div.tooltip td {
+	font-size: 0.8em;
+
+	color: var(--clr-text);
+}
+
+
+a.ref {
+	vertical-align: super;
+	font-size: small;
+}
+
 /***************************
 ****************************
 			MISC
@@ -223,6 +477,41 @@ aside.attachedleft {
 	background-color: red;
   }
 
+
+/*  Keyboard buttons */
+/* from https://helplogger.blogspot.com/2013/10/css-keyboard-keys-on-blogger.html */
+kbd {
+	margin:0 7px;
+	padding:1px 5px;
+
+	line-height: 2em;
+	font-size:1.2em;
+	border:1px solid var(--clr-control-border);
+	border-radius:3px;
+	box-shadow:1px 0 1px 0 var(--clr-surface), 0 2px 0 2px var(--clr-lines), 0 2px 0 3px var(--clr-control-border);
+}
+kbd+kbd{
+	margin:0 3px;
+	background-color: red;
+	/*
+	 background-color: red;
+	*/
+}
+
+
+
+/*DL, DT, DD TAGS LIST DATA*/
+dl.sameline dt {
+	margin-right: 5px;
+	padding: 5px;
+	float: left;
+
+	font-weight: bold;
+}
+dl.sameline dd {
+	margin: 2px 0;
+	padding: 5px;
+}
 
 
 
@@ -265,15 +554,15 @@ aside.attachedleft {
   
   /* horizontal line on inner list items */
   .tree li::before{
-	border-top: 1px solid #999;
+	border-top: 1px solid var(--clr-lines);
 	top: 1em;
 	width: 1em;
-	height: 0;    
+	height: 0;
   }
-  
-  /* vertical line on list items */   
+
+  /* vertical line on list items */
   .tree li:after{
-	border-left: 1px solid #999;
+	border-left: 1px solid var(--clr-lines);
 	height: 100%;
 	width: 0px;
 	top: -1em; 
@@ -313,3 +602,210 @@ aside.attachedleft {
 .sepia { filter: sepia(100%); }
 .huerotate { filter: hue-rotate(180deg); }
 .opacity { filter: opacity(50%); }
+
+/* Inverts dark images in dark mode; no-op in light mode */
+.invertible { filter: invert(1); }
+[data-theme="light"] .invertible { filter: none; }
+
+
+/***************************
+****************************
+	   ARTICLE SHARED
+****************************
+***************************/
+
+a {
+	color: var(--clr-a);
+}
+
+img {
+	max-width: 100%;
+}
+
+
+/******************************
+		 TABLE (base)
+*******************************/
+figure {
+	overflow-x: auto;
+	max-width: 100%;
+}
+figure table {
+	margin: 0 auto;
+}
+
+table {
+	border-collapse: collapse;
+	text-align: left;
+}
+th {
+	color: var(--color-highlight);
+}
+thead th {
+	border-bottom: 1px dotted var(--color-highlight);
+}
+th, td {
+	padding: 1px 3px;
+	height: 1.5em;
+}
+tr:hover {
+	color: var(--color-hover);
+}
+th[colspan], td[colspan] {
+	text-align: center;
+}
+
+
+/******************************
+	 .TableOfContents
+*******************************/
+.TableOfContents {
+	margin: 0;
+	padding-bottom: 7px;
+}
+.TableOfContents:hover {
+	background-color: rgba(128, 128, 128, 0.05);
+}
+.TableOfContents summary {
+	cursor: pointer;
+}
+.TableOfContents details {
+	color: var(--color-highlight);
+}
+.TableOfContents ul {
+	padding: 3px 10px;
+	margin: 0;
+}
+.TableOfContents li {
+	list-style: none;
+	color: var(--clr-highlight-mild);
+	font-size: 90%;
+}
+.TableOfContents li:before {
+	content: '·';
+}
+.TableOfContents a {
+	text-decoration: none;
+	color: var(--color-foreground);
+}
+.TableOfContents a:hover {
+	text-decoration: none;
+	color: var(--color-background);
+	background-color: var(--color-highlight);
+}
+
+
+/******************************
+	 ARTICLE TOOLBAR
+*******************************/
+.article-toolbar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 4px 5px;
+	border-bottom: 1px dotted var(--color-highlight);
+	font-size: 11px;
+	font-family: Arial, sans-serif;
+	line-height: 1;
+	background-color: var(--color-background);
+}
+.toolbar-left a {
+	text-decoration: none;
+	color: var(--color-foreground);
+}
+.toolbar-left a:hover {
+	color: var(--color-highlight);
+}
+.toolbar-center {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--clr-highlight-mild);
+}
+.toolbar-center a {
+	text-decoration: none;
+	font-style: italic;
+	color: var(--clr-highlight-mild);
+}
+.toolbar-center .license-icons {
+	display: flex;
+	gap: 1px;
+}
+.toolbar-center img {
+	height: 12px;
+}
+.toolbar-right {
+	display: flex;
+	gap: 4px;
+}
+.article-toolbar button,
+.article-toolbar a#lang-toggle,
+.article-toolbar a#sources-link {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	border: 1px solid var(--color-highlight);
+	background-color: var(--color-background);
+	color: var(--color-heading);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-decoration: none;
+	font-size: 9px;
+	font-weight: bold;
+	font-family: Arial, sans-serif;
+	opacity: 0.7;
+	transition: opacity 0.2s;
+}
+.article-toolbar button:hover,
+.article-toolbar a#lang-toggle:hover,
+.article-toolbar a#sources-link:hover {
+	opacity: 1;
+	background-color: var(--color-highlight);
+	color: var(--color-background);
+}
+
+/* License icons are white PNGs; invert only in light mode */
+.article-toolbar .invert {
+	filter: none;
+}
+[data-theme="light"] .article-toolbar .invert {
+	filter: invert(100%);
+}
+
+
+/******************************
+	 DARK-MODE OVERRIDES
+*******************************/
+:root figure>img:hover,
+:root figure>a>img:hover {
+	background-color: var(--color-background);
+	border-color: var(--color-highlight);
+}
+
+
+/******************************
+	 MOBILE RESPONSIVE
+*******************************/
+@media (max-width: 768px) {
+	.toolbar-center .license-icons {
+		display: none;
+	}
+	.columns {
+		flex-direction: column;
+	}
+	div.twocolumns > *,
+	div.threecolumns > *,
+	div.fourcolumns > * {
+		width: 100%;
+	}
+	figure table {
+		display: block;
+		overflow-x: auto;
+	}
+	.TableOfContents {
+		width: 100%;
+	}
+}
+

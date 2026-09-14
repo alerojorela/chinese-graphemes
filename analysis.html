@@ -1,0 +1,1198 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Alejandro Rojo">
+  <title>Semantic-phonetic analysis of chinese logograms</title>
+
+  <meta http-equiv="Content-Type" content="svg/xml" />
+
+  <!-- scripts -->
+  <script src="jsexternal/jquery-3.3.1.min.js"></script>
+  <script src='jsexternal/npm-pinyin2ipa-master/dist/pinyin2ipa.min.js'></script>
+  <script src="jsexternal/d3.v3.min.js"></script>
+
+  <!--
+  <script src="jsexternal/fitty.min.js"></script>
+   <script src="jsexternal/TextFit-master/jquery.textfit.js"></script>
+  -->
+
+  <!--
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  -->
+
+  <!-- My scripts -->
+  <script src="js/common.js"></script>
+
+
+  <script src="js/taxogrid.js"></script>
+  <script src="js/binarydivision.js"></script>
+
+  <!-- data -->
+  <script src="./data/derivedmergeddata.js"></script>
+  <script src="./analysis.js"></script>
+
+
+  <!-- styles -->
+  <link rel="stylesheet" type="text/css" href="style/common.css" />
+  <!--
+  <link rel="stylesheet" type="text/css" href="style/graphicOutput.css" />
+  -->
+  <link rel="stylesheet" type="text/css" href="style/graphicOutput.css" />
+  <link rel="stylesheet" type="text/css" href="style/taxogrid.css">
+
+  <!-- groups scripts/styles -->
+  <script src="./radialdiagram.js"></script>
+  <link rel="stylesheet" type="text/css" href="./radialdiagram.css">
+  <link rel="stylesheet" type="text/css" href="./logogramselector.css">
+  <link rel="stylesheet" type="text/css" href="style/theme.css" />
+
+  <style>
+    .ipa {
+      color: orange;
+    }
+  </style>
+
+  <!-- Page palette.
+       This used to be a block called "dark mode adjustments" that nailed the
+       page to #1d1d1d, white SVG text and a cyan #84ffed for every link. Two
+       problems with that. It fought theme.css, which the toolbar's theme button
+       drives, so half the page changed on a toggle and half did not. And the
+       cyan belonged to no palette here: theme.css is warm, amber over brown.
+       Everything below now comes from theme.css tokens, with the light values
+       beside the dark ones so a toggle moves the whole page at once. -->
+  <style>
+    :root {
+      /* The two tab rooms. Same house, different light: one warm, one cool,
+         both low in chroma so neither shouts over the diagrams it holds. The
+         label of a tab wears its panel's colour, which is what pairs them. */
+      --an-tab1: #1f1b15;
+      --an-tab2: #2d261c;
+      --an-svg-text: #f4efe7;
+      --an-cell-l: 13%;        /* taxogrid cells: the theme sets the lightness */
+      --an-cell-hover: #7a5c2e;
+    }
+
+    [data-theme="light"] {
+      --an-tab1: #f6f1e7;
+      --an-tab2: #e7ddcb;
+      --an-svg-text: #23201c;
+      --an-cell-l: 82%;
+      --an-cell-hover: #e8c98f;
+    }
+
+    body {
+      background-color: var(--clr-background);
+      color: var(--clr-text);
+    }
+
+    svg text {
+      fill: var(--an-svg-text);
+    }
+
+    svg .node path {
+      stroke: var(--clr-background);
+    }
+
+    /* Taxogrid cells. Each one keeps its own hue, drawn once and stored on the
+       element; the LIGHTNESS comes from the theme, so switching theme recolours
+       every cell at once without anything being redrawn. Before, the colour was
+       a finished `hsl()` string written into the element's style attribute, and
+       a hard-coded `#444` underneath it in taxogrid.css. */
+    .terminal>.content {
+      background-color: hsl(var(--cell-h, 35), var(--cell-s, 30%), var(--an-cell-l));
+      color: var(--an-svg-text);
+    }
+
+    .content:hover {
+      background-color: var(--an-cell-hover);
+      color: var(--clr-background);
+    }
+
+    .license {
+      border-bottom-color: var(--clr-highlight);
+    }
+
+    header .license {
+      border-bottom: 1px dotted var(--clr-highlight);
+    }
+
+    footer .license {
+      border-top: 1px dotted var(--clr-highlight);
+    }
+
+    a,
+    a:visited {
+      color: var(--clr-a);
+    }
+  </style>
+
+  <!--
+    /*
+    body
+      main
+        .tabselection
+          1
+            detailssection
+              taxogramsection
+                grapheme
+                semantictaxogram
+                graphictaxogram
+              notaphonosemantogram
+              treesection
+                tree
+                definitiontree
+          2
+            diagramsection
+          3
+            sentences
+        aside
+      footer
+    */
+-->
+  <!-- flex layout -->
+  <style>
+    /***************************
+    ****************************
+            main level
+    ****************************
+    ***************************/
+
+    * {
+      /*
+      border: 1px solid fuchsia;
+      */
+      margin: 0;
+      padding: 0;
+    }
+
+
+
+    /* This page is one screenful and is not meant to scroll: every panel sizes
+       itself to the room it has. Two separate things used to raise a scrollbar
+       out of nothing, and they fed each other.
+       `width: 100vw` counts the vertical scrollbar's own width, so the body was
+       15px wider than the room available and raised a HORIZONTAL bar; that bar
+       then ate 15px of height and raised the vertical one.
+       And the article toolbar is a real element, 31px tall, sitting above
+       `main`, to which graphicOutput.css gives `min-height: 100vh`: 31 + 100vh
+       has never fitted in 100vh. Measured on a 1280x719 viewport: the document
+       came out 763px tall in a 704px window.
+       Laying the body out as a column and letting `main` take what is left says
+       that once, instead of guessing with 99vh. */
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* The flat ground goes on <html>, not only on `main`.
+       The page canvas is painted by <html> if it has a background and by
+       <body> if it does not, and theme.css gives <body> a texture. So any area
+       the layout does not cover came out textured, which is how the overflow
+       below was first noticed: the texture appeared where nothing was drawn.
+       That overflow is fixed at its source now (see `#definitiontree`), and the
+       measurement says no such area is left at any width. This stays anyway,
+       because it costs one declaration and it is the honest answer to the
+       question of what colour the page is underneath: the texture belongs to
+       <body>'s own box, under the toolbar, and not to whatever is beyond it.
+       It also covers the overscroll a trackpad can pull past either end. */
+    html {
+      background-color: var(--clr-background);
+    }
+
+    footer {
+      padding: 0 10px;
+    }
+
+    main {
+      display: flex;
+      flex-direction: row;
+
+      /* `flex: 1` instead of `height: 100%`, and `min-height: 0` to undo the
+         `min-height: 100vh` that graphicOutput.css gives every `main`: right
+         for a page that scrolls, wrong for one that has to fit beside a
+         toolbar. */
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: 0;
+    }
+
+    /* alternate flex orientation to vertical */
+    .tabselection+aside {
+      display: flex;
+      flex-direction: column;
+
+      width: 5vw;
+    }
+
+    .tabselection+aside>* {
+      /* flex-grow fills available space */
+      flex-grow: 1;
+
+      /* for text centering */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      writing-mode: vertical-lr;
+    }
+
+
+    .tabselection {
+      /* flex-grow fills available space */
+      flex-grow: 1;
+      height: 100%;
+    }
+
+    .tabselection>* {
+      height: 100%;
+    }
+
+
+
+
+    /* `space-around` spread the free space between the panels instead of
+       around the group, so the emptier the character the wider the hole in the
+       middle. Measured on 口 in a 719px window: the outline section shrank to
+       145px of content inside a box of 338, and between the taxograms and the
+       tree there were 198px of nothing. Grouping them and putting the slack at
+       the ends says the same layout with the hole where a margin belongs: the
+       same measurement now gives 85px between the two, and the same 85 for 蠮,
+       which is the point — the gap stops depending on how deep the character
+       is. */
+    #detailssection {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.6rem;
+
+      height: 100%;
+    }
+
+    /* Two of the panels are there only when there is something to say: the
+       warnings box, empty almost always, and the note on the character's
+       origin, which only some characters have. An empty flex item is still an
+       item: it kept its share of the spacing and left a hole where nothing was
+       ever going to be drawn. Measured on 蠮, whose note is empty: 34px of
+       section plus its gap. */
+    .WarningArea:empty,
+    #notaphonosemantogram:empty {
+      display: none;
+    }
+
+    #taxogramsection {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+
+      align-items: flex-start;
+      height: 30%;
+    }
+
+
+    #notaphonosemantogram {
+      height: 5%;
+    }
+
+    #treesection {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+
+      align-items: center;
+      height: 50%;
+
+      padding-bottom: 30px;
+      /* Same as above: a percentage height plus padding overflows its parent
+         unless the padding is counted inside it. */
+      box-sizing: border-box;
+    }
+
+    /* The outline is the one panel that never kept to its box, and it was three
+       visible faults at once rather than one. `#tree` next door already says
+       `max-height: 100%`: a bitmap scales down whole and stays inside. Text
+       cannot scale, so it has to scroll instead.
+       Left alone it simply grew. Measured on 蠮 at 800px wide: 1079px of
+       outline inside a 298px section, centred, so it spilled over the
+       decomposition panels above it, pushed the document to 1051px in a 719px
+       window, and left 332px that neither `main` nor the tab strip beside it
+       ever reached. What showed down there was the page canvas, and the tab
+       strip stopped halfway down the page.
+       Containing the outline removes all three: measured again, the document is
+       exactly one screenful at every width from 700px up, and in the narrow
+       layout, where the page is meant to scroll, `main` reaches the bottom of
+       the document so there is no bare strip to see. */
+    /* `height: 50%` reserved half the column whatever the tree was, so a
+       two-node tree floated in the middle of a box three times its size. The
+       cap stays — it is what `#definitiontree` measures its own `max-height`
+       against, and what keeps a deep tree from taking the whole column — but
+       below it the section is now as tall as what it holds. */
+    #treesection {
+      height: auto;
+      max-height: 50%;
+    }
+
+    #definitiontree {
+      max-height: 100%;
+      overflow: auto;
+
+      /* The first scrollbar this design has on purpose, so it is the first that
+         has to be told which theme it is in: left to the system it arrives in
+         white, the brightest thing on the page. The standard pair is what
+         current browsers read; the -webkit- rules below say the same for the
+         older ones, which is why the two must not disagree. */
+      scrollbar-width: thin;
+      scrollbar-color: var(--clr-control-border) transparent;
+    }
+
+    #definitiontree::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    #definitiontree::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #definitiontree::-webkit-scrollbar-thumb {
+      background: var(--clr-control-border);
+      border-radius: 4px;
+    }
+
+    #tree {
+      /* The bitmap is sized to the drawing, so it has to scale WHOLE and in
+         proportion. `height: 100%` against an intrinsic width stretched every
+         tree whose shape did not happen to match the box. */
+      display: block;
+      margin: 0 auto;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+    }
+
+
+
+    #diagramsection {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+
+      /* fill parent */
+      width: 100%;
+      height: 100%;
+    }
+
+    #radialdiagram {
+      /* fill parent */
+      width: 100%;
+      height: 100%;
+    }
+
+    /***************************
+    ****************************
+            2nd level
+    ****************************
+    ***************************/
+
+    /***************************
+    ****************************
+            3rd level
+    ****************************
+    ***************************/
+
+    #tabs>:nth-child(1),
+    #option1+label {
+      background-color: var(--an-tab1);
+    }
+
+    #tabs>:nth-child(2),
+    #option2+label {
+      background-color: var(--an-tab2);
+    }
+
+
+    .tabselection>* {
+      padding: 6px;
+      /* With `height: 100%` above, content-box padding is 12px of overflow. */
+      box-sizing: border-box;
+    }
+
+
+    /* 1 taxogramsection */
+    #taxogramsection {
+      text-align: center;
+    }
+
+    #taxogramsection>*,
+    #treesection>* {
+      margin: 0 20px;
+    }
+
+
+    /* Two colour declarations used to sit here, a light pair and a dark pair,
+       and only the second ever applied. They were the two themes, written down
+       and then left to fight. Now the theme picks. */
+    #grapheme .squared {
+      border: none;
+      color: var(--clr-background);
+      background-color: var(--clr-highlight);
+    }
+
+
+
+    figure {
+      display: block;
+      margin: 0 auto;
+    }
+
+    figcaption {
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* 2 notaphonosemantogram */
+    #notaphonosemantogram {
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #notaphonosemantogram p:nth-child(1) {
+      font-size: 80%;
+    }
+
+    #notaphonosemantogram p:nth-child(2) {
+      color: var(--clr-glossed, rgb(233, 232, 202));
+    }
+
+    /* 3 treesection */
+
+
+
+    /* 28px/40px */
+    .tree {
+      font-size: calc(50vh / 17);
+      line-height: calc(50vh / 17 * 1.7);
+    }
+
+    .tree span {
+      /* style | variant | font size/line-height | family */
+      font-size: 0.7em;
+      line-height: 0.2em;
+    }
+
+    /* B1 taxogramsection */
+    #diagramsection {
+      /* It is `height: 100%` of its parent, so a vertical margin is overflow.
+         The parent's 6px of padding already gives the panel its air. */
+      margin: 0 auto;
+
+      align-items: center;
+      text-align: center;
+    }
+
+    #radialdiagram>svg {
+      /* No caps here. The script is given the panel's true size and draws a
+         square of exactly that side, in pixels; a cap on top of that only
+         shrank the drawing and broke the one-unit-is-one-pixel rule the labels
+         are measured by. Centred, because the panel is wider than the square. */
+      display: block;
+      margin: 0 auto;
+    }
+
+    /*
+    .upordownrange input {
+      transform-origin: 75px 75px;
+
+      transform: rotate(-90deg);
+    }
+    */
+
+    footer.attached {
+      width: 93vw;
+    }
+  </style>
+
+  <style>
+    @media (max-width: 600px) {
+      body {
+        width: 100%;
+        /* Stacked on a narrow screen the panels no longer fit a screenful, and
+           there the page SHOULD scroll. `min-height` rather than `auto`,
+           because `auto` also let it come out SHORTER than the window when the
+           character is a shallow one, and then the bottom of the screen was
+           painted by <html> alone, without <body>'s texture: the same seam as
+           before, arriving from the other side. Measured on 口 at 600px wide:
+           body ended at 475 in a 719px window, 244px of it bare. */
+        min-height: 100vh;
+        height: auto;
+      }
+
+      main {
+        flex-direction: column-reverse;
+        /*
+        
+        */
+        width: 100%;
+        min-height: 100%;
+        height: auto;
+      }
+
+      .tabselection+aside {
+        flex-direction: row;
+
+        height: 5vh;
+        width: auto;
+      }
+      .tabselection+aside>* {
+        writing-mode: horizontal-tb;
+      }
+
+
+      #taxogramsection>* {
+        margin: 10px auto;
+      }
+
+
+      #detailssection,
+      #taxogramsection,
+      #notaphonosemantogram,
+      #treesection {
+        flex-wrap: wrap;
+        height: auto;
+        max-height: auto;
+      }
+
+      #tree {
+        max-width: 100%;
+        height: auto;
+      }
+
+      footer.attached {
+        position: relative;
+      }
+    }
+  </style>
+
+  <link rel="stylesheet" type="text/css" href="style/article-toolbar.css">
+  <script src="js/article-toolbar.js"></script>
+</head>
+
+<body data-year="2019" data-license="mit" data-about="">
+
+  <main>
+
+
+    <div id="tabs" class="tabselection option1">
+
+      <!--       A flex container can't be set a none display, it must be wrapped with a div      -->
+      <div>
+        <section id="detailssection">
+          <section id="taxogramsection">
+
+            <div id="grapheme">
+              <div class="squared terminal logogramselectiontrigger">
+                <div class="content">
+                  <a id="selection" class="fittedtext">躑</a>
+                </div>
+              </div>
+              <div></div>
+            </div>
+
+            <div id="semantictaxogram">
+              <div class="squared"></div>
+              <div></div>
+            </div>
+
+            <div id="graphictaxogram">
+              <div class="squared"></div>
+              <div></div>
+            </div>
+
+          </section>
+
+          <div class="WarningArea"></div>
+          <section id="notaphonosemantogram"></section>
+
+          <section id="treesection">
+            <a></a>
+            <canvas id="tree"></canvas>
+
+            <div id="definitiontree"> </div>
+          </section>
+        </section>
+      </div>
+
+      <div>
+        <section id="diagramsection">
+          <header>
+            <div id="upordownrange" class="inputrange">
+              <label class="labelledrangeMin">Up</label>
+              <input onchange="renderdiagram();" type="range" min="0" max="1" value="0">
+              <label class="labelledrangeMax">Down</label>
+            </div>
+          </header>
+
+          <div id="radialdiagram"></div>
+        </section>
+      </div>
+
+      <section id="sentences">
+        <p>TEST</p>
+      </section>
+
+    </div>
+
+    <aside class="radiogroup">
+      <input type="radio" name="tab" id="option1" value="1" checked title="Decomposition section"
+        onchange="selectTab('decomposition');">
+      <label for="option1">Decomposition</label>
+
+      <input type="radio" name="tab" id="option2" value="2"
+        title="The family of this logogram: what it is made of, and what is made with it"
+        onchange="selectTab('family');">
+      <label for="option2">Family</label>
+
+      <!--
+        <input id="option3" type="radio" value="3" title="Navigator section"
+          onchange="document.getElementById('tabs').className = 'tabselection option3';">
+        <label for="option3">TEST</label>
+        -->
+    </aside>
+    <script>
+      /* One place where a tab is chosen, because there are now three ways in:
+         the two radio buttons and the `tab=` parameter of the URL. The three
+         used to carry their own copy of the same two statements, which is how
+         the `drawDiagram()` that the ring needs came to be in one of them only.
+
+         The order matters and is the reason this is a function rather than two
+         lines: the diagram measures the box it is drawn into, so the panel has
+         to be visible BEFORE it draws. Called the other way round it reads a
+         width of zero and draws nothing. */
+      var TABS = { decomposition: 'option1', family: 'option2' };
+      var currentTab = 'decomposition';
+
+      /* The address bar is the address of what you are looking at, so it has to
+         say both things: which character and which tab. Until now it said the
+         character only when you had arrived by one, and never said the tab, so
+         a Family view could be looked at but not sent to anybody.
+
+         `replaceState` and not `pushState`, because nothing here is a new page:
+         another tab is the same character seen from another side, and making
+         Back walk through those would promise a history this page does not
+         have. Changing the CHARACTER is a real navigation already — the
+         selector opens `?q=` in a new window and every logogram in the text is
+         a link — so there is nothing to write there.
+
+         `urlReady` is not ceremony. This script runs while the page is still
+         being parsed, and the `selectTab` below fires long before `onload`
+         reads `?q=` out of the address: writing then would erase the very
+         parameter the page is about to read. */
+      var urlReady = false;
+
+      var syncURL = function () {
+        if (!urlReady || !window.history || !history.replaceState) return;
+        var ch = (typeof currententry === 'undefined') ? null : currententry;
+        history.replaceState(null, '', location.pathname + '?' +
+          (ch ? 'q=' + encodeURIComponent(ch) + '&' : '') + 'tab=' + currentTab);
+      };
+
+      var selectTab = function (name) {
+        var id = TABS[name];
+        if (!id) return false;
+        currentTab = name;
+        document.getElementById(id).checked = true;
+        document.getElementById('tabs').className = 'tabselection ' + id;
+        if (name === 'family' && typeof drawDiagram === 'function') drawDiagram();
+        syncURL();
+        return true;
+      };
+
+      selectTab('decomposition');
+    </script>
+
+
+  </main>
+
+
+  <div id="logogramselectionModal" class="modal">
+    <div class="modal-content">
+      <div class="columns twocolumns">
+        <span class="resetbutton">RESET</span>
+        <span class="closebutton">&times;</span>
+      </div>
+      <div id='radicalselection'>
+        <div>
+          <span>⺀</span><span>⺊</span><span>⺌</span><span>⺍</span><span>川</span><span>亠</span><span>己</span><span>丨</span><span>丬</span><span>丶</span><span>丷</span><span>丿</span><span>乛</span><span>亅</span><span>兀</span><span>入</span><span>八</span><span>凵</span><span>刁</span><span>夊</span><span>孑</span><span>尣</span><span>屮</span><span>巳</span><span>干</span><span>弋</span><span>支</span><span>无</span><span>旡</span><span>曰</span><span>歺</span><span>毋</span><span>氺</span><span>炏</span><span>爻</span><span>玄</span><span>用</span><span>禸</span><span>竹</span><span>网</span><span>罓</span><span>羋</span><span>而</span><span>聿</span><span>肀</span><span>舛</span><span>艸</span><span>襾</span><span>西</span><span>訁</span><span>辰</span><span>辵</span><span>長</span><span>镸</span><span>长</span><span>阜</span><span>隶</span><span>靑</span><span>飛</span><span>飞</span><span>鬯</span><span>麻</span><span>黃</span><span>黄</span><span>龟</span><span>齐</span><span>龜</span><span>龠</span>
+        </div>
+        <div>
+          <span>⺈</span><span>⺗</span><span>⺮</span><span>⺳</span><span>⺼</span><span>尸</span><span>亻</span><span>彡</span><span>豕</span><span>巾</span><span>刀</span><span>㔾</span><span>谷</span><span>寸</span><span>纟</span><span>广</span><span>廴</span><span>白</span><span>心</span><span>扌</span><span>日</span><span>比</span><span>氵</span><span>瓜</span><span>皿</span><span>缶</span><span>艹</span><span>覀</span><span>糹</span><span>足</span><span>隹</span><span>魚</span><span>鳥</span><span>一</span><span>十</span><span>大</span><span>乙</span><span>乚</span><span>冫</span><span>幺</span><span>二</span><span>立</span><span>人</span><span>儿</span><span>冂</span><span>冖</span><span>车</span><span>马</span><span>几</span><span>夂</span><span>水</span><span>刂</span><span>彐</span><span>力</span><span>勹</span><span>匕</span><span>匚</span><span>匸</span><span>卜</span><span>口</span><span>卤</span><span>臣</span><span>卩</span><span>厂</span><span>厶</span><span>又</span><span>罒</span><span>囗</span><span>土</span><span>龙</span><span>士</span><span>夕</span><span>女</span><span>子</span><span>宀</span><span>小</span><span>尢</span><span>犬</span><span>户</span><span>山</span><span>巛</span><span>工</span><span>鹿</span><span>廾</span><span>弓</span><span>彑</span><span>彳</span><span>忄</span><span>戈</span><span>手</span><span>攴</span><span>攵</span><span>舌</span><span>文</span><span>斗</span><span>斤</span><span>方</span><span>月</span><span>木</span><span>欠</span><span>止</span><span>歹</span><span>殳</span><span>母</span><span>田</span><span>毛</span><span>氏</span><span>民</span><span>气</span><span>火</span><span>灬</span><span>爪</span><span>爫</span><span>父</span><span>爿</span><span>片</span><span>牙</span><span>牛</span><span>犭</span><span>玉</span><span>王</span><span>瓦</span><span>甘</span><span>生</span><span>疋</span><span>疒</span><span>癶</span><span>皮</span><span>目</span><span>矛</span><span>矢</span><span>石</span><span>示</span><span>礻</span><span>禾</span><span>鱼</span><span>穴</span><span>米</span><span>糸</span><span>羊</span><span>羽</span><span>老</span><span>耂</span><span>耒</span><span>耳</span><span>肉</span><span>自</span><span>至</span><span>臼</span><span>舟</span><span>艮</span><span>色</span><span>虍</span><span>虎</span><span>虫</span><span>饣</span><span>鬲</span><span>血</span><span>行</span><span>衣</span><span>衤</span><span>見</span><span>见</span><span>角</span><span>言</span><span>讠</span><span>豆</span><span>豸</span><span>貝</span><span>贝</span><span>赤</span><span>走</span><span>身</span><span>車</span><span>非</span><span>辛</span><span>辶</span><span>邑</span><span>阝</span><span>酉</span><span>釆</span><span>里</span><span>金</span><span>釒</span><span>钅</span><span>門</span><span>门</span><span>雨</span><span>青</span><span>面</span><span>革</span><span>韋</span><span>韦</span><span>韭</span><span>音</span><span>頁</span><span>页</span><span>風</span><span>风</span><span>食</span><span>飠</span><span>首</span><span>香</span><span>馬</span><span>骨</span><span>高</span><span>髟</span><span>鬥</span><span>鬼</span><span>鸟</span><span>鹵</span><span>麥</span><span>麦</span><span>黍</span><span>黑</span><span>黹</span><span>黽</span><span>黾</span><span>鼎</span><span>鼓</span><span>鼠</span><span>鼻</span><span>齊</span><span>齒</span><span>齿</span><span>龍</span><span>龶</span>
+        </div>
+        <div>
+          <span>⺷</span><span>占</span><span>乃</span><span>三</span><span>龺</span><span>兄</span><span>北</span><span>荅</span><span>答</span><span>少</span><span>思</span><span>夸</span><span>办</span><span>劦</span><span>买</span><span>厤</span><span>甲</span><span>反</span><span>丵</span><span>丁</span><span>不</span><span>尺</span><span>加</span><span>冏</span><span>冊</span><span>壴</span><span>叚</span><span>旨</span><span>惡</span><span>申</span><span>野</span><span>多</span><span>句</span><span>貫</span><span>云</span><span>尤</span><span>屾</span><span>凡</span><span>丞</span><span>杀</span><span>蒦</span><span>丹</span><span>切</span><span>盈</span><span>予</span><span>舍</span><span>廣</span><span>享</span><span>敕</span><span>死</span><span>旦</span><span>林</span><span>朿</span><span>臽</span><span>夬</span><span>灰</span><span>炎</span><span>熱</span><span>玨</span><span>男</span><span>众</span><span>引</span><span>巫</span><span>乞</span><span>系</span><span>熊</span><span>永</span><span>巠</span><span>炭</span><span>絲</span><span>危</span><span>芒</span><span>肃</span><span>肅</span><span>処</span><span>蟲</span><span>乑</span><span>尔</span><span>䍃</span><span>臤</span><span>盍</span><span>象</span><span>卉</span><span>戎</span><span>負</span><span>敖</span><span>戚</span><span>蜀</span><span>光</span><span>它</span><span>步</span><span>柰</span><span>訇</span><span>是</span><span>果</span><span>卑</span><span>取</span><span>䜌</span><span>亦</span><span>么</span><span>卖</span><span>賣</span>
+        </div>
+      </div>
+      <div id='logogramsfilter'>
+
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <script src="./logogramselector.js"></script>
+  <script>
+    /**************************************************************
+   *                           MAIN
+   **************************************************************/
+    //#region
+
+    var currententry;
+    // after document is loaded
+    window.onload = function () {
+      var idArray = GetURLParameter("q")
+      console.log(idArray);
+      if (idArray !== undefined) {
+        for (var n = 0; n < idArray.length; n++) {
+          console.log(n, idArray[n], decodeURI(idArray[n]));
+        }
+
+        currententry = decodeURI(idArray[0]);
+        Run();
+
+      } else {
+        currententry = '喻';
+        Run();
+      }
+
+      /* `tab=decomposition` or `tab=family`, and anything else is ignored
+         rather than argued with: a URL that names a tab this page does not have
+         should still open the character. It goes after Run() on purpose,
+         because the ring is drawn from the data Run() is what loads. */
+      var tab = GetURLParameter("tab");
+      if (tab !== undefined && tab[0]) selectTab(decodeURI(tab[0]).toLowerCase());
+
+      // From here on the address is ours to write, and the first thing it gets
+      // is the canonical form of what the page just opened.
+      urlReady = true;
+      syncURL();
+    }
+
+
+    var Run = function (char = currententry) {
+
+      var lg = logograms[char];
+      if (lg === undefined) {
+        $('.WarningArea').show().html('WARNING: Logogram not found');
+        return;
+      } else {
+        $('.WarningArea').hide().empty();
+      }
+
+
+      // GRAPHIC decomposition
+      function ignore() {
+        var IDSstring = GetIDSstring(char); // ⿰⿱⿱⺈⿵⿰丨冂⿱⿻一丨一一⿱⿱⿰丶丷羊⿱⿱⿰丶丷一⿱⿰丨冂一  (鳝)
+        console.log(IDSstring);
+
+        //Non-Bracketted expression
+        if (!PrefixNotationCheck(IDSstring, IDSchars)) alert('wrong prefix expression');
+        var logogramCNObj = PrefixNotationCNObjetify(IDSstring, IDSchars); // Object
+        console.log('>\t', JSON.stringify(logogramCNObj));
+        // Bracketted expression
+        var BracketedExpression = objectToBracketedExpression(logogramCNObj); //[⿰[⿱[⿱[⺈][⿵[⿰[丨][？]][⿱[⿻[一][丨]][一]]]][一]][⿱[⿱[⿰[丶][？]][？]][⿱[⿱[⿰[丶][？]][一]][⿱[⿰[丨][？]][一]]]]]
+        console.log(BracketedExpression);
+      }
+      var gd = function () {
+        console.log('Descomposición GRÁFICA');
+        // wikimedia logograms decomposition
+        var logogramCNObjWikimedia = RecursiveAnnotation(char, getWikimedialogograms, true);
+        console.log(logogramCNObjWikimedia);
+        var BracketedExpression = objectToBracketedExpression(logogramCNObjWikimedia);    // Bracketted expression
+        console.log(BracketedExpression);
+
+        // Taxogram rendering
+        var section = $('#graphictaxogram div');
+        var ObjGrid = render.TaxoGridCSSFlex(logogramCNObjWikimedia, renderoptions.inline_alternating);
+        section.eq(0).empty().append(ObjGrid);
+        section.eq(1).html(`<a href="${'../../tools/hierarchical-diagram-builder/index.html?tool=binary&q=' + encodeURI(BracketedExpression)}" target="_blank">graphic decomposition</a>`);
+        return logogramCNObjWikimedia;
+
+      }
+
+      // SEMANTIC-PHONETIC decomposition
+      var sd = function () {
+        console.log('Descomposición SEMÁNTICA');
+
+        // {"id":"陟","name":"陟","children":[{"id":"阝","name":"阝","color":"red"},{"id":"步","name":"步","color":"blue"}]}
+        var logogramCNObj = RecursiveAnnotation(char, getChildNodes, true);
+        console.log(logogramCNObj);
+        var BracketedExpression = objectToBracketedExpression(logogramCNObj);    // Bracketted expression
+        console.log('>\t', BracketedExpression, JSON.stringify(logogramCNObj));
+
+        // Taxogram rendering
+        var section = $('#semantictaxogram div');
+        var ObjGrid = render.TaxoGridCSSFlex(logogramCNObj, renderoptions.inline_alternating);
+        section.eq(0).empty().append(ObjGrid);
+        section.eq(1).html(`<a href="${'../../tools/hierarchical-diagram-builder/index.html?tool=binary&q=' + encodeURI(BracketedExpression)}" target="_blank">semantic decomposition</a>
+            <a id="Exportobj">⬇</a>`);
+
+        hyperlinkDownload('Exportobj', 'objectdata' + char + '.json', JSON.stringify(logogramCNObj));
+
+        return logogramCNObj;
+
+      }
+
+
+      var isaphonosemantogram = false;
+      if ('etymology' in lg && lg.etymology !== undefined) {
+
+        var et = lg.etymology;
+        if ('type' in et && et.type !== undefined) {
+          var hint = '';
+          if ('hint' in et && et.hint !== undefined) hint = et.hint;
+
+          if (et.type == 'pictographic') {
+            $('#notaphonosemantogram').html(`
+                <p>This logogram is of <strong>pictographic</strong> origin and it was designed to visualize:</p>
+                <p>${hint}</p>`);
+          } else if (et.type == 'ideographic') {
+            $('#notaphonosemantogram').html(`
+                <p>This logogram is of <strong>ideographic</strong> origin and it was designed to evoke:</p>
+                <p>${hint}</p>`);
+            //<p>${lg.definition}</p>`);
+          } else {
+            isaphonosemantogram = true;
+            $('#notaphonosemantogram').empty();
+          }
+        }
+      }
+
+      var logogramCNObj = {};
+      if (isaphonosemantogram) {
+        logogramCNObj = sd();
+        RenderTrees(logogramCNObj);
+        gd();
+      } else {
+        logogramCNObj = gd();
+        RenderTrees(logogramCNObj);
+      }
+
+
+      $('#selection').text(char);
+      //◎◎ $('#selection').html(char);
+      var section = $('#grapheme>div');
+      section.eq(1).html(`<a href="${'https://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=' + char}" target="_blank">Unihan</a>`);
+
+      renderdiagram(char);
+
+      Update();
+
+
+      /* Problemas
+      $('#canvas').html(svg.content.firstChild.outerHTML);
+      $('#canvas *').attr('xmlns', 'http://www.w3.org/2000/svg');
+  */
+    }
+
+    var RenderTrees = function (CNObj) {
+      $('#definitiontree').prepend(`<ul class="tree">${objectToList(CNObj)}</ul>`);
+      drawTreeCanvas(CNObj);
+    }
+
+    // Kept apart from the list above, and the tree it last drew kept with it.
+    // The canvas bakes the theme's colours in as literals (see below), so it has
+    // to be redrawn when the theme changes -- and redrawing it must not prepend
+    // a second copy of the definition list, which is what would happen if the
+    // whole of RenderTrees ran again.
+    var lastTreeObj = null;
+
+    var drawTreeCanvas = function (CNObj) {
+      if (CNObj) lastTreeObj = CNObj; else CNObj = lastTreeObj;
+      if (!CNObj) return;
+
+      //options.fontcolor = 'white';
+      options.GridCellWidth = 100;
+      options.TextFractionofWidth = 1 / 2;
+      // Declared here and not in customstyle below: the renderer measures the
+      // text to size its canvas, and it cannot read a stylesheet to find out
+      // how small `.extra` is. Two places saying 60% would eventually say two
+      // different things, and the one that got it wrong would be the silent one.
+      options.extraFontFraction = 0.6;
+
+      // The colours are READ from the theme and written in as literals, because
+      // this stylesheet does not end up in the page. Render() serialises the SVG
+      // into a `data:` URL that drawInlineSVG hands to an <img>, and that is a
+      // separate document: it inherits none of the page's custom properties, so
+      // a var() here would resolve to nothing. Before, the tree was drawn with
+      // `fill: white` outright, which meant white text on a white page for
+      // anyone who chose the light theme.
+      var css = getComputedStyle(document.documentElement);
+      var tone = function (name, fallback) {
+        return (css.getPropertyValue(name) || '').trim() || fallback;
+      };
+      options.customstyle = ` 
+        g line {
+          stroke: ${tone('--clr-lines', '#777')};
+          stroke-width: 2px
+        } 
+        text {
+            font-family: 'Lucida Console Unicode', Arial, Helvetica, Serif;
+            font-size: ${options.fontsize}px;
+            fill: ${tone('--clr-text', 'white')};
+        }
+        .tag {
+            font-weight: 700;
+            fill: ${tone('--clr-text-heading', '#c8a060')};
+        }
+        .extra {
+            fill: ${tone('--clr-text-secondary', '#ffa4a4')};
+            font-style: italic;
+        }`
+
+      var svg = Render(CNObj);
+
+      const canvas = document.getElementById("tree");
+      canvas.width = svg.ContainerSize.width;
+      canvas.height = svg.ContainerSize.height;
+      drawInlineSVG(canvas, svg.content.firstChild);
+    }
+
+    // The theme button lives in the toolbar and sets data-theme on <html>. It
+    // fires no event, so the attribute itself is the signal. Everything that
+    // reads a colour ONCE, at draw time, has to be told: the canvas tree bakes
+    // its palette into a data: URL, and the radial has arcs sized to the panel.
+    // The stylesheet handles the rest on its own.
+    if (window.MutationObserver) {
+      new MutationObserver(function () {
+        drawTreeCanvas();
+        drawDiagram();
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    }
+
+    var renderdiagram = function (char = currententry) {
+
+      var range = $('#upordownrange input');
+      var upLabel = $('#upordownrange .labelledrangeMin');
+      var downLabel = $('#upordownrange .labelledrangeMax');
+
+      // set defaults
+      $('#radialdiagram').empty();
+      range.prop('disabled', false);
+      upLabel.css('text-decoration', 'none');
+      downLabel.css('text-decoration', 'none');
+
+      var WayUp = IsRecursive(char, getParentNodes);
+      var WayDown = IsRecursive(char, getChildNodes);
+
+      // The direction is decided ONCE, before anything else happens. It used to
+      // be decided by two `if`s in a row, each reading the slider the other had
+      // just written, and one case fell straight between them: a character that
+      // only goes up, arrived at with the slider left at Down by the previous
+      // character, struck Down through and moved the slider back to Up, but the
+      // annotation ran in neither branch. Measured on 口, which has 413
+      // relatives above it and no decomposition of its own: it drew ONE empty
+      // sector while the control said Up. The reverse case worked only by
+      // accident of the order.
+      var goUp = WayUp && (!WayDown || range.prop('value') == 0);
+
+      if (!WayUp) upLabel.css('text-decoration', 'line-through');
+      if (!WayDown) downLabel.css('text-decoration', 'line-through');
+      if (!WayUp || !WayDown) range.prop('disabled', true);
+      range.prop('value', goUp ? 0 : 1);
+
+      // RecursiveAnnotation writes `children` into the shared logograms entry,
+      // so THIS call is what turns logograms[char] into a tree, and what
+      // decides which way it grows. Skip it and the entry keeps whatever some
+      // earlier traversal, possibly in the other direction, left on it.
+      diagramRoot = (WayUp || WayDown)
+        ? RecursiveAnnotation(char, goUp ? getParentNodes : getChildNodes, true)
+        : null;
+      drawDiagram();
+    }
+
+    // The annotated tree is kept, not recomputed. Building it costs about 1.8s
+    // for a common radical such as 口, because getParentNodes scans all 9574
+    // entries once per node and 口 has 413 of them. Redrawing at a different
+    // size must not pay that bill again.
+    var diagramRoot = null;
+
+    var drawDiagram = function () {
+      if (!diagramRoot) return;
+      var box = document.getElementById('radialdiagram');
+      // A panel belonging to another tab is display:none, and a hidden box
+      // measures 0. The old code measured the viewport, logged it to the
+      // console and then called d3Layout with no arguments at all, so the
+      // diagram was always 500x500 whatever room it had. The size matters
+      // twice over now: the viewBox is 2*radius, so passing the true size is
+      // what makes one unit inside the drawing one pixel on screen, and that
+      // is the unit in which each label decides whether it fits.
+      var w = box.clientWidth || Math.min(window.innerWidth * 0.9, 900);
+      var h = box.clientHeight || Math.min(window.innerHeight * 0.8, 900);
+      d3Layout(diagramRoot, w, h);
+    };
+
+
+
+    // Convierte un objeto en una lista HTML
+    var objectToList = function (expr) {
+      var color = 'color' in expr ? `style="color: ${expr.color}"` : '';
+      var name = GetName(expr);
+
+      var lg = logograms[expr.id];
+
+      if ('children' in expr) {
+        var ul = '<ul>';
+        var children = expr.children;
+        for (var n = 0; n < children.length; n++) {
+          ul += objectToList(children[n]);
+        }
+        ul += '</ul>';
+      }
+
+
+      var pinyin = GetPronunciation(lg);
+      if (useIPA) var ipa = pinyin2ipa(pinyin, { toneMarker: 'chaoletter', superscript: true });
+      //     <span class="ipa">&frasl;${ipa}&frasl;</span>
+
+      return `<li>
+        <a href="?q=${name}" target="_blank" ${color}>${name}</a>
+        <span>${lg.definition}</span>
+        <span ${color}>${pinyin}</span>
+        ${ipa === undefined ? '' : `<span class="ipa">${ipa}</span>`}
+        ${ul === undefined ? '' : ul}</li>`;
+    }
+
+
+
+
+    var Update = function () {
+      console.log('>\tUpdate');
+
+
+      // One action per cell
+      // $(".terminal").click(function (event) {});
+
+
+      // Assures a 1:1 square ratio for taxograms
+      var side = '25vh';
+      $('.squared').width(side).height(side);
+      $('.squared>*').width('100%').height('100%');
+
+
+      // A hue per cell, and nothing else: the stylesheet turns it into a colour
+      // so the theme owns the lightness. The old version wrote a finished hsl()
+      // string here and carried TWO `var luminosity` declarations, one for a
+      // light page and one for a dark one, of which only the second ever ran.
+      // They were the two themes, written down and then left to fight.
+      $('.terminal>.content').each(function () {
+        if (this.style.getPropertyValue('--cell-h')) return;
+        this.style.setProperty('--cell-h', Math.round(getRandom(24, 46)));
+        this.style.setProperty('--cell-s', Math.round(getRandom(22, 44)) + '%');
+      });
+
+      // Grow each cell's text to the room its container has
+      /*
+      fitty('.fittedtext', { minSize: 1 });
+      $(".fittedtext").textfit('bestfit');
+      */
+      fittext();
+
+      console.log('>\tUpdate 2');
+    }
+    // Grows each label to its container without overflowing it, and CENTRES IT
+    // BY ITS INK.
+    //
+    // It used to read a width in PIXELS and then write a size in `em`, which is
+    // a fraction of the PARENT's size: the two never referred to the same
+    // thing, so the result depended on whatever font-size the element happened
+    // to be carrying. And because it never reset, every window resize measured
+    // a box it had already changed and drifted a little further out.
+    //
+    // Sizing and centring are two different jobs and only the first was being
+    // done. A CJK glyph is drawn inside an em square that its ink neither fills
+    // nor sits in the middle of: measured on 番 at 161.6px, the ink runs 134px
+    // above the baseline and 14px below. Centre the BOX and the ink lands 4px
+    // from the top of the cell and 28px from the bottom, which reads as
+    // spilling over the top edge; with a font whose ascent is a little taller,
+    // it does spill.
+    //
+    // The em square stays the ruler for the SIZE, on purpose. Sizing by the ink
+    // instead would blow 一 up tenfold to fill the cell, because its ink is a
+    // tenth of its em; CJK is drawn on a uniform square precisely so that every
+    // character comes out the same size.
+    var inkContext = null;
+    var inkOf = function (el, text, px) {
+      inkContext = inkContext || document.createElement('canvas').getContext('2d');
+      var cs = getComputedStyle(el);
+      inkContext.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + px + 'px ' + cs.fontFamily;
+      var m = inkContext.measureText(text);
+      var above = m.actualBoundingBoxAscent || 0, below = m.actualBoundingBoxDescent || 0;
+      var left = m.actualBoundingBoxLeft || 0, right = m.actualBoundingBoxRight || 0;
+      return { above: above, below: below, height: above + below, width: left + right,
+               fontAbove: m.fontBoundingBoxAscent || 0, fontBelow: m.fontBoundingBoxDescent || 0 };
+    }
+    var fittext = function () {
+      $(".fittedtext").each(function () {
+        var el = this, $t = $(el), $p = $t.parent();
+        $t.css({ 'font-size': '', 'top': '' });  // back to the stylesheet
+        var base = parseFloat($t.css('font-size'));
+        var scale = Math.min($p.width() / $t.width(), $p.height() / $t.height());
+        if (!isFinite(scale) || scale <= 0) return;
+
+        var size = base * scale * 0.9;
+        var text = (el.textContent || '').trim();
+        if (!text) return;
+        // The margin has to be promised to the INK, not to the em square, and
+        // that is a different promise: a dense glyph paints outside its square.
+        // Measured on 蠮: 大 came out with 41px of ink inside a 40.5px em in a
+        // 45px cell, so the 10% of air the `* 0.9` above was meant to leave had
+        // already been eaten before it was counted — 2px, which reads as
+        // touching the edge. Shrinking is the only correction allowed here:
+        // sizing BY the ink would blow 一 up tenfold to fill its cell.
+        var room = 0.85;
+        var ink = inkOf(el, text, size);
+        var k = Math.min(1, ($p.height() * room) / ink.height,
+                            ($p.width() * room) / ink.width);
+        if (isFinite(k) && k > 0 && k < 1) size *= k;
+        $t.css('font-size', size + 'px');
+
+        // Put the middle of the ink where the middle of the box is. Where the
+        // baseline falls inside the line box is arithmetic the font answers:
+        // half the leading, plus the font's own ascent. `fontBoundingBox*` is
+        // that font's own metrics, not this glyph's ink.
+        //
+        // This used to ask the DOM instead, with a zero-sized `<span>` appended
+        // to read where it landed, on the principle that measuring beats
+        // modelling. It does, when the measurement is sound, and this one was
+        // not: it came out 10.7px high on a 37.6px glyph, and the shift built on
+        // it pushed every logogram down past the bottom of its cell. The
+        // arithmetic lands within a pixel of what gets painted — checked glyph
+        // by glyph against the pixels, average error 1.1px over the thirteen
+        // cells of 蠮, where the probe was out by ten.
+        ink = inkOf(el, text, size);
+        var cs = getComputedStyle(el);
+        var lh = parseFloat(cs.lineHeight);
+        if (!isFinite(lh)) lh = size * 1.2;
+        var top0 = el.getBoundingClientRect().top +
+                   parseFloat(cs.borderTopWidth) + parseFloat(cs.paddingTop);
+        var baseline = top0 + (lh - (ink.fontAbove + ink.fontBelow)) / 2 + ink.fontAbove;
+        var box = $p[0].getBoundingClientRect();
+        var shift = (box.top + box.height / 2) - (baseline - (ink.above - ink.below) / 2);
+        if (isFinite(shift) && shift) $t.css('top', shift + 'px');
+      });
+    }
+
+    //$(window).resize(fittext);
+    window.onresize = function () { fittext(); drawDiagram(); };
+
+//#endregion
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,175 @@
+/* The selector follows theme.css, like the rest of the page: :root carries the
+   dark values, which is the default here, and [data-theme="light"] overrides. */
+:root {
+  /* How hard the page behind is pushed back. Dark needs more, because the page
+     is already dark and a faint scrim would not separate anything; light needs
+     less, because 72% black turns a cream page into charcoal, which pushes it
+     back all right but is not the same page any more. */
+  --sel-scrim: rgba(0, 0, 0, 0.72);
+}
+
+[data-theme="light"] {
+  --sel-scrim: rgba(36, 28, 20, 0.45);
+}
+
+  #selection {
+    cursor: pointer;
+
+  }
+
+  #selection:hover {
+    background-color: var(--clr-hover, #e0b870);
+    color: var(--clr-background, #1a1714);
+  }
+
+
+
+  /* The Modal (background) */
+  .modal {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    /* Stay in place */
+    /* No z-index here. common.css already gives every modal 1000, under a
+       comment saying that modals must be in front, and a `z-index: 1` written
+       in THIS sheet quietly beat it, because this one loads later. The symptom
+       was visible and nobody had connected it: the radial's zoom buttons, at
+       z-index 5, painted on top of the open modal. */
+    /* Location of the box. `box-sizing` is not decoration here: with
+       `height: 100%` and a content-box, the padding is ADDED to the screen's
+       height, so the veil's box ended up 100px taller than the viewport. Being
+       `fixed`, that bottom strip sits off-screen and no amount of scrolling
+       reaches it: measured in a 1024x640 window, the last radical 賣 stayed at
+       y=637 with the scroll already at its maximum and the window 559 tall.
+       Relative units rather than 100px, so a short screen does not give away a
+       seventh of its height before the panel starts. */
+    box-sizing: border-box;
+    padding: 6vh 0;
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: auto;
+    /* Enable scroll if needed */
+    /* Dark enough that the page behind stops competing for the eye: at 0.4 the
+       whole diagram stayed perfectly legible under the list of radicals and the
+       two fought each other. */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: var(--sel-scrim, rgba(0, 0, 0, 0.72));
+  }
+
+  /* Modal Content */
+  .modal-content {
+    /* `opacity: 50%` used to be here, and it was the wrong tool for what it was
+       trying to do: it fades the ELEMENT, text and borders included, so the
+       sunburst behind showed straight through the radicals and the list could
+       not be read at all. Anything meant to be translucent belongs in the
+       background colour's alpha, never on the box.
+       And `white` on `black` is a light panel asked for by a page that does not
+       know whether it is light: the theme's own surface follows both. */
+    background-color: var(--clr-surface, #28221c);
+    color: var(--clr-text, #d0c8be);
+    border: 1px solid var(--clr-control-border, #70583e);
+    margin: auto;
+    padding: 20px;
+    width: 60vw;
+
+    border-radius: 13px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  }
+
+  .modal .resetbutton,
+  .modal .applybutton,
+  .modal .closebutton {
+    cursor: pointer;
+    color: var(--clr-text-secondary, #8a8078);
+    letter-spacing: .06em;
+  }
+
+  /* It was a grey multiplication sign on a grey panel at half opacity, which is
+     as close to invisible as a close button gets. */
+  .modal .closebutton {
+    display: block;
+    text-align: right;
+    font-size: 1.7em;
+    line-height: 1;
+  }
+
+  .modal .resetbutton:hover,
+  .modal .applybutton:hover,
+  .modal .closebutton:hover {
+    color: var(--clr-hover, #e0b870);
+  }
+
+
+
+
+  #radicalselection {
+    /* border: 2px solid black; */
+  }
+
+  /* Room to breathe. Measured before: the cell was 18x19px with a 16px glyph
+     inside, so the ink of a dense radical such as 鬱 filled its 16px content box
+     edge to edge and sat against the border. And being `inline`, the box did not
+     take vertical space either, so the borders of one row touched the next.
+     `inline-block` plus padding gives each radical its own square, and the
+     margin keeps two borders from ever meeting and reading as one thick line. */
+  #radicalselection span {
+    display: inline-block;
+    min-width: 1em;
+    padding: 0.16em 0.22em;
+    margin: 1px;
+    line-height: 1.1;
+    text-align: center;
+    vertical-align: middle;
+
+    border: 1px solid var(--clr-lines, #584430);
+    border-radius: 3px;
+  }
+
+  #radicalselection span:hover {
+    cursor: pointer;
+
+    /* reverse color */
+    color: var(--clr-background, #1a1714);
+    background-color: var(--clr-hover, #e0b870);
+
+    border: 1px solid var(--clr-hover, #e0b870);
+    font-weight: 700;
+  }
+
+  /* Not red, which is what it was. Red means PHONETIC everywhere else here: in
+     the trees, in the ring and in the article. Using it for "chosen" would have
+     the palette saying something it does not mean. */
+  #radicalselection .selected {
+    color: var(--clr-background, #1a1714);
+    background-color: var(--clr-highlight, #c88a48);
+
+    border: 1px solid var(--clr-highlight, #c88a48);
+    font-weight: 700;
+  }
+
+
+
+  #logogramsfilter {
+    display: none;
+    margin: 10px 0;
+    padding: 5px;
+    border: 1px dotted var(--clr-control-border, #70583e);
+
+    min-height: 1em;
+  }
+
+  #logogramsfilter span {
+    display: inline-block;
+    padding: 0.16em 0.22em;
+    line-height: 1.1;
+  }
+
+  #logogramsfilter span:hover {
+    color: var(--clr-hover, #e0b870);
+    cursor: pointer;
+  }

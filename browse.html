@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Alejandro Rojo">
+  <title>Chinese graphemes · browse the whole set</title>
+
+  <link rel="stylesheet" type="text/css" href="style/common.css">
+  <link rel="stylesheet" type="text/css" href="style/theme.css">
+  <link rel="stylesheet" type="text/css" href="style/article-toolbar.css">
+  <link rel="stylesheet" type="text/css" href="browse.css">
+  <link rel="stylesheet" type="text/css" href="phonetictree.css">
+  <script src="js/article-toolbar.js"></script>
+</head>
+
+<body data-year="2019" data-license="mit" data-about="">
+  <main id="bw-main">
+
+    <header id="bw-head">
+      <h1>Browse the whole set</h1>
+      <p class="bw-lede">9574 graphemes. <a href="analysis.html">analysis.html</a> takes
+        <em>one</em> character apart; this page is <em>the set</em>. Every figure behind
+        these controls is measured in <code>README.md</code>.</p>
+    </header>
+
+    <nav id="bw-tabs">
+      <button class="bw-tab bw-on" data-panel="bw-table">Table</button>
+      <button class="bw-tab" data-panel="bw-trees">Composition trees</button>
+    </nav>
+
+    <!-- ─────────────────────────── TABLE ─────────────────────────── -->
+    <section id="bw-table" class="bw-panel">
+
+      <div id="bw-controls">
+
+        <fieldset class="bw-group">
+          <legend>Partition</legend>
+          <label>Origin
+            <select id="bw-origin">
+              <option value="">any</option>
+              <option value="pictophonetic">phonosemantogram</option>
+              <option value="ideographic">ideogram</option>
+              <option value="pictographic">pictogram</option>
+              <option value="_none">no etymology</option>
+            </select>
+          </label>
+          <label>Layout
+            <select id="bw-layout">
+              <option value="">any</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset class="bw-group">
+          <legend>Depth — three different measures</legend>
+          <label title="etymology.semantic + etymology.phonetic, recursive. Tops out at 4">Etymological
+            <select id="bw-divety"><option value="">any</option></select>
+          </label>
+          <label title="the decomposition field, the n-ary IDS tree. Tops out at 8">IDS
+            <select id="bw-divids"><option value="">any</option></select>
+          </label>
+          <label title="graphicaldecomposition, binary left/right. Tops out at 7">Wikimedia
+            <select id="bw-divwiki"><option value="">any</option></select>
+          </label>
+        </fieldset>
+
+        <fieldset class="bw-group">
+          <legend>Strokes</legend>
+          <label>from <input type="number" id="bw-strokes-min" min="1" max="33" placeholder="1"></label>
+          <label>to <input type="number" id="bw-strokes-max" min="1" max="33" placeholder="33"></label>
+        </fieldset>
+
+        <fieldset class="bw-group">
+          <legend>Filters</legend>
+          <label><input type="checkbox" id="bw-attested">
+            <span title="Has a Baxter-Sagart reconstruction. Only 35 % do, and a phonetic branch only sounds alike in Old Chinese">Attested in Old Chinese</span></label>
+          <label><input type="checkbox" id="bw-radicaldiffers">
+            <span title="271 entries where the dictionary's filing radical is not the etymological semantic component">Radical ≠ semantic</span></label>
+          <label><input type="checkbox" id="bw-composes">
+            <span title="83 % of graphemes compose nothing. This leaves the 17 % that are building blocks">Composes others</span></label>
+          <label><input type="checkbox" id="bw-gsrclash">
+            <span title="Karlgren's GSR puts it in a different phonetic series from its phonetic component: the link is disputed">Karlgren disagrees</span></label>
+          <label><input type="checkbox" id="bw-swapped">
+            <span title="Stronger than a clash: the component filed as semantic is the one that sounds alike, and the one filed as phonetic is not. 13 characters">Slots swapped</span></label>
+          <label>Variants
+            <select id="bw-variant">
+              <option value="">any</option>
+              <option value="trad">traditional only</option>
+              <option value="simp">simplified only</option>
+              <option value="none">exclude variant pairs</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset class="bw-group bw-grow">
+          <legend>Search</legend>
+          <input type="search" id="bw-search" placeholder="grapheme, pinyin, meaning or hint">
+        </fieldset>
+
+        <fieldset class="bw-group bw-grow">
+          <legend>Or paste a list of characters</legend>
+          <input type="text" id="bw-list" placeholder="水火山川… — anything that is not in the set is ignored">
+        </fieldset>
+
+      </div>
+
+      <details id="bw-columnbox">
+        <summary>Columns</summary>
+        <div id="bw-presets">
+          <button data-preset="study">Study</button>
+          <button data-preset="etymology">Etymology</button>
+          <button data-preset="sound">Sound</button>
+          <button data-preset="shape">Shape</button>
+          <button data-preset="everything">Everything</button>
+        </div>
+        <div id="bw-columns"></div>
+      </details>
+
+      <div id="bw-status">
+        <span id="bw-count"></span>
+        <span class="bw-spacer"></span>
+        <span id="bw-copied" class="bw-note"></span>
+        <button id="bw-copy" title="Copy the filtered rows as TSV, ready to paste into a spreadsheet">Copy as TSV</button>
+        <button id="bw-reset">Reset</button>
+      </div>
+
+      <div id="bw-tablewrap">
+        <table id="bw-tableel">
+          <thead id="bw-thead"></thead>
+          <tbody id="bw-tbody"></tbody>
+        </table>
+      </div>
+      <button id="bw-more"></button>
+
+    </section>
+
+    <!-- ─────────────────────────── TREES ─────────────────────────── -->
+    <section id="bw-trees" class="bw-panel" hidden>
+      <section id="pt-section">
+
+        <div id="pt-controls">
+          <fieldset>
+            <input type="radio" name="pt-view" id="pt-view-phon" checked>
+            <label for="pt-view-phon">Phonetic</label>
+            <input type="radio" name="pt-view" id="pt-view-sem">
+            <label for="pt-view-sem">Semantic</label>
+          </fieldset>
+
+          <select id="pt-root" title="Component at the root of the tree"></select>
+
+          <fieldset>
+            <input type="checkbox" id="pt-trad" checked>
+            <label for="pt-trad" title="Show the traditional spelling of a variant pair">Traditional</label>
+            <input type="checkbox" id="pt-simp" checked>
+            <label for="pt-simp" title="Show the simplified spelling of a variant pair">Simplified</label>
+          </fieldset>
+        </div>
+
+        <p id="pt-viewnote"></p>
+        <div id="pt-tree"></div>
+        <p id="pt-info"></p>
+
+        <div id="pt-legend">
+          <span class="k-oc">Old Chinese (Baxter-Sagart)</span>
+          <span class="k-mc">Middle Chinese</span>
+          <span class="k-py">modern pinyin only: unattested in the classical corpus</span>
+          <span class="k-gsr">⚠ Karlgren puts it in a different phonetic series</span>
+          <span class="k-pair">a variant pair is one node: the dimmer glyph is the simplified spelling</span>
+        </div>
+
+      </section>
+    </section>
+
+  </main>
+
+  <script src="data/derivedmergeddata.js"></script>
+  <script src="phonetictree.js"></script>
+  <script src="browse.js"></script>
+  <script>
+    // Tabs. The tree is a view of the set, like the table, so it lives here and
+    // not in analysis.html, which is a view of one character.
+    function showPanel(target) {
+      Array.prototype.forEach.call(document.querySelectorAll('.bw-tab'), function (b) {
+        b.classList.toggle('bw-on', b.getAttribute('data-panel') === target);
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.bw-panel'), function (p) {
+        p.hidden = p.id !== target;
+      });
+      if (target === 'bw-trees') phonetictree.draw();
+    }
+
+    document.getElementById('bw-tabs').addEventListener('click', function (e) {
+      var target = e.target.getAttribute('data-panel');
+      if (target) showPanel(target);
+    });
+
+    // A link can ask for a panel: browse.html#bw-trees. Without this the anchor
+    // scrolls to a section that is `hidden`, which is to say nowhere.
+    if (location.hash === '#bw-trees') showPanel('bw-trees');
+  </script>
+</body>
+
+</html>

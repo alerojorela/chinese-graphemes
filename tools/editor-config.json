@@ -1,0 +1,94 @@
+{
+  "_comment": [
+    "basic_graph_editor configuration for the graphs emitted by graph_export.py.",
+    "Copy it as custom/config.json in the editor (it is fetched over HTTP and",
+    "replaces the values embedded in custom/config.js; under file:// it is not",
+    "read and the editor keeps its own).",
+    "The tooltip comes from nodeTooltipFields: 'description' carries pronunciation,",
+    "meaning, Baxter-Sagart gloss and GSR series, in that order.",
+    "2026 Alejandro Rojo Gualix - MIT"
+  ],
+  "nodeSchema": {
+    "label": {
+      "type": "string",
+      "description": "The grapheme"
+    },
+    "category": {
+      "type": "array",
+      "enum": [
+        "attested",
+        "unattested"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "rows": 5,
+      "description": "Pronunciation, meaning, gloss and GSR series"
+    },
+    "notes": {
+      "type": "string",
+      "rows": 3
+    }
+  },
+  "edgeSchema": {
+    "label": {
+      "type": "string"
+    },
+    "category": {
+      "type": "array",
+      "enum": [
+        "phonetic",
+        "semantic",
+        "phonetic disputed",
+        "semantic disputed"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "rows": 3
+    },
+    "notes": {
+      "type": "string",
+      "rows": 3
+    }
+  },
+  "categoryStyles": {
+    "node": {
+      "attested": {
+        "colorIndex": 0,
+        "shapeIndex": 0
+      },
+      "unattested": {
+        "colorIndex": 4,
+        "shapeIndex": 2
+      }
+    },
+    "edge": {
+      "phonetic": {
+        "typeIndex": 2
+      },
+      "semantic": {
+        "typeIndex": 0
+      },
+      "phonetic disputed": {
+        "typeIndex": 4
+      },
+      "semantic disputed": {
+        "typeIndex": 4
+      }
+    }
+  },
+  "enableTooltip": true,
+  "tooltipAlign": "left",
+  "nodeLabelFields": [
+    "label"
+  ],
+  "edgeLabelFields": [
+    "label"
+  ],
+  "nodeTooltipFields": [
+    "description"
+  ],
+  "defaultLayout": "dagre-vertical",
+  "f3CyclesCategory": true
+}

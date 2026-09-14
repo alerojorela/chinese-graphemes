@@ -5,6 +5,22 @@
     font-weight: bold;
     line-height: 1;
     margin: 0;
+    /* `position: relative` so the script can move the glyph with `top`. It used
+       `transform` before, which works the same on screen but is handled by the
+       compositor, and there are rendering paths that skip it. */
+    position: relative;
+
+    /* Naming the CJK font is not cosmetic, it is what makes the measurement
+       possible. graphicOutput.css gives the page `'Century Gothic', 'Arial
+       Narrow'`, neither of which is installed here and neither of which has a
+       Chinese glyph, so the browser reached for a fallback CHOSEN BY THE
+       DOCUMENT'S LANGUAGE. `measureText` has no language, so it could resolve a
+       different font, and the script was measuring one glyph while the page drew
+       another: ink 33 above the baseline and 5 below by canvas, 19 and 13 in
+       what was actually painted. With the family named, both answer the same. */
+    font-family: 'Noto Sans CJK SC', 'Noto Sans CJK', 'Lucida Console Unicode', sans-serif;
+
+    user-select: none;
 }
 
 

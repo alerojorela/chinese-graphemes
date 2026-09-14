@@ -1,0 +1,170 @@
+/* Ascending composition trees — 2026 Alejandro Rojo Gualix — MIT */
+
+#pt-section {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 8px;
+  overflow: hidden;
+}
+
+#pt-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 4px;
+  border-bottom: 1px dotted currentColor;
+}
+
+#pt-controls label { cursor: pointer; }
+#pt-controls fieldset {
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#pt-root {
+  max-width: 46ch;
+  font-size: 1em;
+  padding: 2px 4px;
+}
+
+#pt-viewnote,
+#pt-info {
+  font-size: 80%;
+  opacity: 0.75;
+  padding: 0 4px;
+}
+
+#pt-tree {
+  flex-grow: 1;
+  overflow: auto;
+  padding: 6px 4px 20px;
+}
+
+#pt-tree ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 1.4em;
+  border-left: 1px dotted rgba(128, 128, 128, 0.45);
+}
+
+#pt-tree ul.pt-root {
+  padding-left: 0;
+  border-left: none;
+}
+
+.pt-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  padding: 1px 0;
+  white-space: nowrap;
+}
+
+.pt-glyph {
+  font-size: 1.5em;
+  line-height: 1.1;
+  min-width: 1.4em;
+  text-decoration: none;
+  color: inherit;
+}
+
+.pt-glyph:hover { text-decoration: underline; }
+
+/* A variant pair is ONE node with two spellings. The traditional one is the
+   half that carries the Old Chinese reading printed next to it, so the
+   simplified is dimmed: not less important, just not the one being quoted. */
+.pt-variant > .pt-row > .pt-glyph.pt-simp { opacity: 0.72; }
+
+/* The fold. Disabled on a leaf, so the column stays aligned and a node with no
+   children says so instead of looking unopened. */
+.pt-toggle {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8em;
+  line-height: 1;
+  width: 1.4em;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.pt-toggle:hover:not(:disabled) { opacity: 1; }
+.pt-toggle:disabled { cursor: default; opacity: 0.25; }
+
+.pt-count {
+  font-size: 78%;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Pronunciation comes first and is the prominent field: the branch is a family
+   in Old Chinese and is not one in Mandarin, so the reconstruction is the
+   evidence and the gloss is the commentary. */
+.pt-pron {
+  font-family: "DejaVu Sans", "Charis SIL", serif;
+  min-width: 13ch;
+  color: #6fd3c0;
+}
+
+.pt-gloss {
+  font-size: 85%;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 52ch;
+}
+
+/* Which stage of the language justifies the link */
+.pt-stage-mc > .pt-row > .pt-pron { color: #9ec8e8; }
+.pt-stage-py > .pt-row > .pt-pron { color: #e0a860; font-style: italic; }
+.pt-stage-none > .pt-row > .pt-pron { opacity: 0.4; }
+
+/* Not attested in the classical corpus. The 20th-century chemistry coinages
+   land here: 氫 ammonia, 烴 hydrocarbon, 砼 concrete. Same procedure, two
+   thousand years later, so they do not belong to the Old Chinese family. */
+.pt-unattested > .pt-row > .pt-glyph {
+  color: #e0a860;
+  border-bottom: 1px dashed #e0a860;
+}
+
+.pt-gsr-clash {
+  color: #ff8a7a;
+  cursor: help;
+  font-size: 90%;
+}
+
+#pt-legend {
+  font-size: 78%;
+  opacity: 0.75;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 4px;
+  border-top: 1px dotted currentColor;
+}
+
+#pt-legend span::before {
+  content: "";
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-right: 0.4em;
+  vertical-align: middle;
+}
+
+#pt-legend .k-oc::before { background: #6fd3c0; }
+#pt-legend .k-mc::before { background: #9ec8e8; }
+#pt-legend .k-py::before { background: #e0a860; }
+#pt-legend .k-gsr::before { background: #ff8a7a; }
+#pt-legend .k-pair::before { background: none; content: "苹"; width: auto; opacity: 0.72; }
+
+@media (max-width: 600px) {
+  .pt-pron { min-width: 9ch; }
+  .pt-gloss { display: none; }
+}

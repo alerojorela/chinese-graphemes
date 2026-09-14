@@ -1,0 +1,40 @@
+/***************************************************************
+ *  table.css — Layout for data/table pages
+ *  Colors: theme.css | Shared components: common.css
+ ***************************************************************/
+
+body {
+	width: 95%;
+	margin: 0 auto;
+	font-family: 'Century Gothic', 'Arial Narrow', sans-serif;
+	color: var(--color-foreground);
+}
+
+@media (min-width: 1000px) {
+	body {
+		width: 80%;
+	}
+}
+
+main {
+	padding: 15px;
+	overflow-x: auto;
+	background-color: var(--color-background);
+	color: var(--color-foreground);
+}
+
+header {
+	text-align: right;
+}
+footer {
+	text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Segoe Print', 'Trajan Pro', 'Calibri',
+				 'Chilanka', 'Purisa';
+	color: var(--color-heading);
+}
+h1, h2 {
+	text-transform: uppercase;
+}

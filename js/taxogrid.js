@@ -3,8 +3,8 @@ Renders treemaps
 
 2019 Alejandro Rojo Gualix
 
-Creative Commons license
-CC BY-NC Attribution & Non-commercial
+MIT license
+see LICENSE at the repository root
 *************************************************/
 
 /*	

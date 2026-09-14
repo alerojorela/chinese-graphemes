@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Alejandro Rojo">
+  <title>Chinese logogram analysis</title>
+  <link rel="stylesheet" type="text/css" href="style/common.css">
+  <link rel="stylesheet" type="text/css" href="style/theme.css">
+  <link rel="stylesheet" type="text/css" href="style/article-toolbar.css">
+  <script src="js/article-toolbar.js"></script>
+  <style>
+    /* Opaque panel: theme.css textures the body, and this page loads neither
+       articulo.css nor graphicOutput.css, which are where that rule lives. */
+    main {
+      max-width: 44em;
+      margin: 0 auto;
+      padding: 1.5em 1.2em 4em;
+      line-height: 1.5;
+      background-color: var(--clr-background);
+      color: var(--clr-text);
+    }
+
+    h1 {
+      font-size: 1.6em;
+      margin-bottom: 0.2em;
+    }
+
+    .lede {
+      opacity: 0.8;
+      margin-bottom: 2em;
+    }
+
+    .glyphline {
+      font-size: 2em;
+      letter-spacing: 0.25em;
+      margin: 0.6em 0 0.2em;
+    }
+
+    ul.doors {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul.doors li {
+      margin: 0 0 1.1em;
+    }
+
+    ul.doors a {
+      font-weight: bold;
+      font-size: 1.05em;
+    }
+
+    ul.doors p {
+      margin: 0.15em 0 0;
+      opacity: 0.75;
+      font-size: 0.9em;
+    }
+
+    h2 {
+      font-size: 1.05em;
+      margin: 2em 0 0.6em;
+      padding-bottom: 0.3em;
+      border-bottom: 1px dotted currentColor;
+    }
+  </style>
+</head>
+
+<body data-year="2019" data-license="cc-by" data-about="">
+  <main>
+    <h1>Chinese logogram analysis</h1>
+
+    <p class="lede">Every Chinese character is a logogram, tied to a word and not
+      to an idea or a picture. Most of them are <b>phonosemantograms</b>: built
+      from one part that says how the word sounds and another that says what it is
+      about. This project takes them apart and counts how deep that goes.</p>
+
+    <p class="glyphline">礴 臟 蘩 蠮</p>
+    <p class="lede">The four characters that reach the deepest nesting found in
+      the database: four levels.</p>
+
+    <h2>Explore</h2>
+    <ul class="doors">
+      <li>
+        <a href="analysis.html">Decomposition viewer</a>
+        <p>One character at a time: tree and taxonomy grid, and an interactive
+          radial navigator that also shows which characters contain the selected
+          one.</p>
+      </li>
+      <li>
+        <a href="article.html">Recursion in Chinese phonosemantograms</a>
+        <p>The write-up: what the decomposition shows and where the recursion
+          stops. Also in <a href="article.es.html">Spanish</a>, which is the
+          original.</p>
+      </li>
+      <li>
+        <a href="graphemesCulturalHints.html">Cultural hints</a>
+        <p>Graphemes whose composition records something about the culture that
+          drew them. Also in <a href="graphemesCulturalHints.es.html">Spanish</a>.</p>
+      </li>
+    </ul>
+
+    <h2>Browse the set</h2>
+    <ul class="doors">
+      <li>
+        <a href="browse.html">Browse the whole set</a>
+        <p>All 9574 graphemes in one table. Two partitions, three depth measures,
+          five filters, a column chooser, and a box to paste your own list of
+          characters. Plus the ascending composition trees, which show what a
+          phonetic component grew into.</p>
+      </li>
+    </ul>
+
+    <h2>Tools</h2>
+    <ul class="doors">
+      <li>
+        <a href="tools/binarydivision/binarydivision.html">Binary division</a>
+        <p>Draws a bracketed expression as nested space division.</p>
+      </li>
+    </ul>
+
+    <h2>Where the data comes from</h2>
+    <ul class="doors">
+      <li>
+        <a href="sources.html">Sources</a>
+        <p>The three sources every field comes from, their licences, how much of
+          each one did not make it in, and the seven places where they contradict
+          each other.</p>
+      </li>
+    </ul>
+  </main>
+</body>
+
+</html>

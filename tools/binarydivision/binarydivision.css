@@ -22,3 +22,10 @@
     svg text.word {
       font-style: italic;
     }
+/* Was in style/graphicOutput.css until 2026-09-14, when this project took the
+   site's current copy of that sheet, where `.inputarea` had become
+   `.program_interface > .input_area`. This page still uses the old name, and the
+   rule is its own, so it lives here now. */
+.inputarea {
+  margin: 15px 0;
+}

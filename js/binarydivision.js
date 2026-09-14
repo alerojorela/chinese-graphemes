@@ -3,8 +3,8 @@ Renders binary division diagrams from an array
 
 2019 Alejandro Rojo Gualix
 
-Creative Commons license
-CC BY-NC Attribution & Non-commercial
+MIT license
+see LICENSE at the repository root
 *************************************************/
 
 
@@ -56,9 +56,13 @@ var options = {
     this.GridCell.Width = Width;
     this.GridCell.Height = Width / 2 / Math.tan(this.angle / 2);
   },
-  fontcolor: 'black',
+  fontcolor: 'currentColor',
   linestroke: '#777',
   fontsize: 18,
+  // How big an `.extra` tspan is next to its tag, as a fraction of fontsize.
+  // The renderer has to be told: it measures the text in order to size the
+  // canvas, and it cannot read the caller's stylesheet to find out.
+  extraFontFraction: 1,
   textseparation: 8, // this.GridCell.Height / 6
   set TextFractionofWidth(fraction) {
     this.fontsize = fraction * this.GridCell.Width;
@@ -92,8 +96,8 @@ options.customstyle = `
 var Render = function (obj) {
 
   var dynamicContainer = {
-    xmin: 0, ymin: 0,
-    xmax: 0, ymax: 0
+    xmin: Infinity, ymin: Infinity,
+    xmax: -Infinity, ymax: -Infinity
   };
   var logdynamicContainer = function (x, y) {
     dynamicContainer.xmin = Math.min(dynamicContainer.xmin, x);
@@ -102,6 +106,47 @@ var Render = function (obj) {
     dynamicContainer.xmax = Math.max(dynamicContainer.xmax, x);
     dynamicContainer.ymax = Math.max(dynamicContainer.ymax, y);
   }
+
+  // How wide a label comes out. The container used to be computed from the node
+  // COORDINATES alone and padded with a fixed 30px, so any label wider than
+  // 60px was drawn outside the canvas and silently clipped -- which is every
+  // label, once a caller raises the font size.
+  var _measure = undefined;
+  var textWidth = function (str, px) {
+    if (_measure === undefined) {
+      try { _measure = document.createElement('canvas').getContext('2d'); }
+      catch (e) { _measure = null; }
+    }
+    if (_measure) {
+      _measure.font = px + "px 'Lucida Console Unicode', Arial, Helvetica, serif";
+      return _measure.measureText(str).width;
+    }
+    // No canvas (a test harness, say): CJK and full-width punctuation take a
+    // whole em, everything else about 0.55.
+    var w = 0;
+    for (var i = 0; i < str.length; i++) {
+      w += /[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFF60]/.test(str[i]) ? 1 : 0.55;
+    }
+    return w * px;
+  };
+
+  // One laid-out line, logged where it actually lands. It takes a WIDTH and not
+  // a string, because a node's line carries the tag and its extras at two
+  // different sizes: measuring the concatenation at the tag size overstates it
+  // by hundreds of pixels. `hanging` follows the dominant-baseline the
+  // stylesheet gives terminals; everything else sits on an alphabetic baseline,
+  // so it rises above y instead of falling below it.
+  var logLine = function (textclass, x, y, w, px, hanging) {
+    var x0 = textclass === 'rightnode' ? x
+      : textclass === 'leftnode' ? x - w
+        : x - w / 2;
+    // Generous on purpose. A hanging baseline sits near the cap height, so the
+    // body plus a descender runs about 1.1em below it; an alphabetic one rises
+    // about 0.8em and drops 0.22em. Rounding both outwards costs a few pixels
+    // and is the difference between a tight fit and a clipped 'g'.
+    logdynamicContainer(x0, hanging ? y : y - px * 0.9);
+    logdynamicContainer(x0 + w, hanging ? y + px * 1.3 : y + px * 0.3);
+  };
 
 
   /*
@@ -159,18 +204,29 @@ var Render = function (obj) {
     var group = `<text class="${textclass}" x="${x}px" y="${y}px">
       <tspan class="${tspanclass}">${tag}</tspan>`;
 
-    logdynamicContainer(x, y);
+    var extraPx = options.fontsize * options.extraFontFraction;
+    var hanging = (textclass === 'terminal');
+    var line = y;                                        // baseline being written
+    var lineW = textWidth(tag, options.fontsize);        // how wide that line is so far
+    var lineH = options.fontsize;                        // and how tall
 
     if ('namesubstrings' in obj) {
       for (var n = 0; n < obj.namesubstrings.length; n++) {// 1 is tag
-        // console.log('namesubstrings ', obj.namesubstrings[n]);
         if (textclass == 'terminal') {
+          // A terminal breaks: each extra gets a line of its own, 2em below.
           group += `<tspan class="extra" x="${x}px" dy="${2}em" >${obj.namesubstrings[n]}</tspan>`;
+          logLine(textclass, x, line, lineW, lineH, hanging);
+          line += 2 * extraPx;
+          lineW = textWidth(obj.namesubstrings[n], extraPx);
+          lineH = extraPx;
         } else {
+          // A node does not break: the extras run on after the tag, smaller.
           group += `<tspan class="extra">${obj.namesubstrings[n]}</tspan>`;
+          lineW += textWidth(obj.namesubstrings[n], extraPx);
         }
       }
     }
+    logLine(textclass, x, line, lineW, lineH, hanging);
 
     return group + '</text>';
   }
@@ -185,26 +241,32 @@ var Render = function (obj) {
   //   console.log('WriteText>\t',JSON.stringify(gridobj));
 
 
-  // Esto se podría determinar a priori, según se van especificando los elementos SVG
-  var Container = RenderContainer(gridobj); // Container
-  // var Container = dynamicContainer; // Container
+  // The markup is written FIRST, because writing it is what measures the text.
+  // Before, the box was computed from the node coordinates and the drawing was
+  // produced afterwards, so nothing could ever tell the box how wide a label
+  // turned out to be. The guess it used instead was a flat 30px.
+  var root = WriteSvg(gridobj);
+
+  // The node coordinates are the floor: a node with no label still has a line
+  // running to it, and that line has to fit.
+  var nodes = RenderContainer(gridobj);
+  const Container = {
+    xmin: Math.min(nodes.xmin, dynamicContainer.xmin),
+    ymin: Math.min(nodes.ymin, dynamicContainer.ymin),
+    xmax: Math.max(nodes.xmax, dynamicContainer.xmax),
+    ymax: Math.max(nodes.ymax, dynamicContainer.ymax)
+  };
 
   const Size = {
     x: (Container.xmax - Container.xmin),
     y: (Container.ymax - Container.ymin)
   }
-  var margin = {
-    x: 0.2 * Size.x,
-    y: 0.2 * Size.y
-  };
-  var margin = { // 20% or 75
-    x: Math.max(0.2 * Size.x, 100),
-    y: Math.max(0.2 * Size.y, 100)
-  };
+  // Room for the stroke and nothing more: the box already covers the text.
+  var margin = { x: 8, y: 8 };
 
   const ContainerSize = {
-    width: Size.x + 2 * margin.x,
-    height: Size.y + 2 * margin.y
+    width: Math.ceil(Size.x + 2 * margin.x),
+    height: Math.ceil(Size.y + 2 * margin.y)
   }
   const Displacement = {
     x: - Container.xmin + margin.x,
@@ -219,28 +281,36 @@ var Render = function (obj) {
 
   // minifier
   // https://stackoverflow.com/questions/494143/creating-a-new-dom-element-from-an-html-string-using-built-in-dom-methods-or-pro/35385518#35385518
-  var root = WriteSvg(gridobj);
-
   var template = document.createElement('template');  // template.content.firstChild;
   template.innerHTML =
     `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" 
-      width=${ContainerSize.width} height=${ContainerSize.height}>
+      width="${ContainerSize.width}" height="${ContainerSize.height}"
+      viewBox="0 0 ${ContainerSize.width} ${ContainerSize.height}">
       <style type="text/css">
-        text.node {
-          dominant-middle: baseline; /* vertical align: baseline middle hanging */
+        /* 'centralnode', not 'node': the class WriteSvg writes is
+           textanchor[1] = 'centralnode', so the old 'text.node' rule matched
+           nothing and central labels fell back to text-anchor:start, hanging
+           off to the right of their own node.
+           The three 'dominant-middle: baseline' declarations that used to sit
+           here are gone: there is no such property, so they never applied, and
+           every drawing anyone has ever seen was already on the alphabetic
+           default. Guessing what they meant would change the picture; deleting
+           them does not. */
+        text.centralnode {
           text-anchor: middle; /* horizontal align: start middle end */
         }
         text.rightnode {
-          dominant-middle: baseline; /* vertical align: baseline middle hanging */
           text-anchor: start;
         }
         text.leftnode {
-          dominant-middle: baseline; /* vertical align: baseline middle hanging */
           text-anchor: end;
         }
         text.terminal {
           dominant-baseline: hanging;
           text-anchor: middle; 
+        }
+        .extra {
+          font-size: ${options.extraFontFraction * 100}%;
         }
         ${options.customstyle}
       </style>

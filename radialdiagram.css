@@ -1,0 +1,194 @@
+/* Radial navigator. 2019- Alejandro Rojo Gualix
+
+   The palette follows theme.css: :root carries the dark values, which is this
+   site's default, and [data-theme="light"] overrides them. The two arc colours
+   are the same distinction the trees and the article use, red for phonetic and
+   blue for semantic, so a reader who has learnt it once does not learn it twice. */
+
+:root {
+  --rd-semantic:        #3f6d8e;
+  --rd-semantic-hot:    #5b95bd;
+  --rd-phonetic:        #9c4a3f;
+  --rd-phonetic-hot:    #c9675a;
+  --rd-plain:           #4a423a;
+  --rd-gap:             var(--clr-background, #1a1714);
+}
+
+[data-theme="light"] {
+  --rd-semantic:        #9fc3dc;
+  --rd-semantic-hot:    #6fa3c6;
+  --rd-phonetic:        #e6a99f;
+  --rd-phonetic-hot:    #cd7466;
+  --rd-plain:           #d8d0c6;
+  --rd-gap:             var(--clr-background, #f8f4ee);
+}
+
+/* The tooltip, and the reason it was never seen.
+   common.css declares `div.tooltip { visibility: hidden }` and expects whoever
+   uses it to turn visibility back on; the comment sitting above that rule even
+   shows the call. This diagram animates OPACITY instead, so the box faded in
+   while staying hidden, and every hover on the ring showed nothing at all.
+   That matters more now than it did: a sector too narrow to carry its character
+   has the tooltip as its only way of saying which character it is.
+   The rules below are scoped to this diagram's own `rd-tip` class, so putting
+   visibility back does not un-hide anybody else's tooltip. */
+div.rd-tip {
+  position: absolute;
+  visibility: visible;
+  z-index: 10;
+
+  max-width: 24em;
+  padding: .35em .6em;
+
+  text-align: left;
+  font-size: 1em;
+
+  background: var(--clr-surface, #28221c);
+  color: var(--clr-text, #d0c8be);
+  border: 1px solid var(--clr-control-border, #70583e);
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+/* The character itself, big: it is the answer the small sectors cannot give.
+   The border and the accent colour come from common.css and are undone here,
+   because a heading rule designed for a glossary table does not suit a glyph. */
+div.rd-tip th {
+  font-size: 2.8em;
+  font-weight: normal;
+  line-height: 1;
+  border-bottom: none;
+  color: var(--clr-text, #d0c8be);
+  padding: 0 .25em 0 0;
+  vertical-align: middle;
+}
+
+div.rd-tip td { font-size: .95em; color: var(--clr-text, #d0c8be); }
+div.rd-tip tr.phon td { color: var(--rd-phonetic-hot); font-style: italic; }
+
+/* The same word the arc's colour is saying, for anyone who has not learnt the
+   colours yet, and for the sectors too narrow to show anything at all. */
+div.rd-tip tr.role td {
+  font-size: .8em;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+
+/* ── Magnification ────────────────────────────────────────────────────────── */
+
+#radialdiagram { position: relative; }
+
+/* The grabbing hand only once there is somewhere to grab towards: at 1x the
+   whole circle is in view and the pan is pinned, so promising otherwise would
+   be a lie. The wheel and the buttons are how you get out of 1x. */
+#radialdiagram.rd-zoomed > svg { cursor: grab; }
+#radialdiagram.rd-zoomed > svg:active { cursor: grabbing; }
+
+.rd-zoom {
+  position: absolute;
+  top: .5em;
+  right: .5em;
+  display: flex;
+  align-items: center;
+  gap: .25em;
+  z-index: 5;
+}
+
+.rd-zoom button {
+  width: 1.9em;
+  height: 1.9em;
+  font: inherit;
+  line-height: 1;
+  color: var(--clr-text, #d0c8be);
+  background: var(--clr-control-bg, #221d18);
+  border: 1px solid var(--clr-control-border, #70583e);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.rd-zoom button:hover { background: var(--clr-surface, #28221c); }
+
+.rd-level {
+  min-width: 2.6em;
+  text-align: right;
+  font-size: .85em;
+  font-variant-numeric: tabular-nums;
+  opacity: .6;
+}
+
+/* Only worth reading once there is something to go back from. */
+.rd-level { visibility: hidden; }
+#radialdiagram.rd-zoomed .rd-level { visibility: visible; }
+
+/* ── The ring ─────────────────────────────────────────────────────────────── */
+
+svg path.arc {
+  fill: var(--rd-plain);
+  fill-rule: evenodd;
+  /* The separating line is the page's own background, so the gaps read as gaps
+     and not as a white grid drawn over a dark page. */
+  stroke: var(--rd-gap);
+  stroke-width: 0.5px;
+  cursor: pointer;
+  transition: fill .12s;
+}
+
+svg path.arc.sem  { fill: var(--rd-semantic); }
+svg path.arc.phon { fill: var(--rd-phonetic); }
+
+svg path.arc.hot      { fill: var(--clr-hover, orange); }
+svg path.arc.sem.hot  { fill: var(--rd-semantic-hot); }
+svg path.arc.phon.hot { fill: var(--rd-phonetic-hot); }
+
+/* The root's own arc fills the middle and must not be seen; the centre group
+   draws there instead. */
+svg .root path.arc {
+  fill: none;
+  stroke: none;
+  pointer-events: none;
+}
+
+/* ── Labels ───────────────────────────────────────────────────────────────── */
+
+/* No font-size here: the script sets one per label, in viewBox units, from the
+   room that label actually has. A rule here would have to win or lose against
+   that, and either way one of the two would be wrong. */
+/* The label sits ON an arc, so it takes its contrast from the arc and not from
+   the page: near-white over the mid-tone arcs of the dark theme, near-black over
+   the pale ones of the light theme. */
+svg text.label {
+  fill: #f4efe7;
+  font-family: 'Noto Sans CJK SC', 'Lucida Console Unicode', serif;
+  user-select: none;
+}
+
+[data-theme="light"] svg text.label { fill: #23201c; }
+
+/* ── The middle ───────────────────────────────────────────────────────────── */
+
+svg .centre { cursor: pointer; }
+
+svg .centre circle.centre-hit {
+  fill: var(--clr-background, #1a1714);
+  stroke: none;
+}
+
+/* The three sizes reproduce the chain the old rules produced: text at 1.5em,
+   tspans at half of that, and the character itself at five times the text. */
+svg .centre text {
+  fill: var(--clr-text, #d0c8be);
+  font-size: 1.5em;
+  pointer-events: none;
+}
+
+svg .centre tspan { font-size: 0.5em; }
+svg .centre tspan.logogram { font-size: 5em; }
+svg .centre tspan.phon { fill: var(--rd-phonetic-hot, red); }
+
+/* Zoomed in, the middle is the way back, so it says so. */
+svg .centre.zoomed circle.centre-hit {
+  stroke: var(--clr-control-border, #70583e);
+  stroke-width: 1px;
+  stroke-dasharray: 3 3;
+}
