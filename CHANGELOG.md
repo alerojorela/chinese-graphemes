@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## 2026-09-14 21:43 · Fuera el histórico del README, y el castellano no se recrea
+
+**El README contaba de dónde venía `browse.html` y a nadie le sirve.** Lo dijo el
+usuario: un párrafo entero explicando que sustituyó a siete páginas —seis
+`DataTables_static_*.html` y una `DataQuery.html`— con 8,1 MB de HTML generado.
+Eso es crónica, y la crónica vive aquí, no en el manual. La sección queda en lo
+que sí contesta: `browse.html` es el conjunto, `analysis.html` es un carácter, y
+de ese reparto sale dónde va cada cosa.
+
+**Eran cuatro menciones y no una, y dos las escribía el guion.** Buscar el nombre
+de la página muerta lo enseñó: además del párrafo había una explicación de la
+selección por enumeración que se definía por lo que hacía la página vieja, y
+otras dos **dentro del bloque generado**, en `tools/build_stats.py`. Un README que
+se genera no se arregla editando el README: al volver a ejecutarse, vuelve. Se
+tocaron las dos líneas del guion, se regeneró, y ahora **no queda ninguna
+mención** ni en el documento ni en el generador.
+
+Las dos que se reescribieron en vez de borrarse decían algo útil por debajo del
+nombre propio, y se quedan diciéndolo sin él: la enumeración «no la sustituye
+ningún filtro, porque una lista de vocabulario de un libro de texto no es una
+propiedad», y la fila de la tabla pasa a decir qué hace, «solo sobreviven los
+caracteres que pegues».
+
+**Y el README castellano no existe ni existió.** Antes de ponerse a traducir se
+midió el trabajo —**216 líneas a mano y 275 generadas**, de 490— porque las
+salidas posibles eran muy distintas: o un guion bilingüe, o una traducción que
+empezaría a divergir en la siguiente ejecución.
+
+⚠️ **Luego se buscó en el historial, que es lo que faltaba por hacer.** La
+sospecha era razonable: si el castellano fue el original, tenía que estar en un
+commit viejo bajo el nombre `README.md`. Revisados **los cuatro que han existido
+en el repositorio**, están los cuatro en inglés, incluido el del commit inicial,
+que son **39 bytes de título**; y la copia que conserva el árbol congelado en su
+`0OFFLINE` es el mismo fichero de 2.068 bytes. **Nunca hubo original castellano de
+este README.** Lo que sí está en castellano es el artículo, `article.es.html`, que
+es otro documento y sigue en su sitio. Queda anotado en el
+[`CLAUDE.md` del taller](../../../../CLAUDE.md) como cerrado por hecho, no como
+deuda pendiente.
+
+Comprobado que el bloque generado vuelve a salir **idéntico** tras el cambio, así
+que la próxima regeneración no reabre nada.
+
 ## 2026-09-14 21:32 · La dirección dice qué se está mirando, y revisión final
 
 **La URL se escribe, no solo se lee.** Decía el carácter únicamente si habías
