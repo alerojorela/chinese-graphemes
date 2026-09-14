@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Where the author's page lives. Absent means the old behaviour, a file
     // called aboutme.html beside the page; an empty attribute means there is no
     // such page here and the name is written without a link. An autonomous
-    // project has nowhere honest to point: phsemgram carries no aboutme.html,
+    // project has nowhere honest to point: chinese-graphemes carries no aboutme.html,
     // and deployed at writing/chineseGraphemes/ the site has none there either,
     // because the site's lives at its root. So the link was dead standalone AND
     // dead deployed, on every page, and no checker saw it: it is concatenated

@@ -158,7 +158,7 @@ def build():
     untracked = sum(s for p, s in files if p in ign)
 
     out = [HEAD]
-    out.append('<h1>phsemgram · inventario</h1>')
+    out.append('<h1>chinese-graphemes · inventario</h1>')
     out.append('<p class="lede">Todo lo que hay en el repositorio, publicable y no '
                'publicable. Generado por <code>tools/build_inventory.py</code>; vive '
                'en <code>0OFFLINE/</code> para que no pueda publicarse por descuido.</p>')
@@ -205,7 +205,7 @@ HEAD = '''<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>phsemgram · inventario</title>
+<title>chinese-graphemes · inventario</title>
 <style>
 :root { --bg:#fbfaf8; --fg:#242220; --dim:#6d6862; --line:#ddd8d0; --warn:#b06a20; --star:#1d7a66; }
 @media (prefers-color-scheme: dark) {

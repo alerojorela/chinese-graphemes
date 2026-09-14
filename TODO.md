@@ -73,6 +73,51 @@ cifras medidas sobre el corpus y aciertan todos. La raíz publicable bajó de 13
 
 ## 🔴 Lo que sigue pendiente
 
+⚠️ **La alerta de jQuery de GitHub es cierta en la versión y no en la
+página.** Dependabot avisa (alerta 5) de CVE-2019-11358: en jQuery anterior a
+3.4.0, `jQuery.extend(true, {}, fuente)` copia una clave `__proto__` sobre
+`Object.prototype`, y desde ese momento **todos** los objetos de la página
+heredan lo que le hayan metido. Es el ingrediente de un ataque, no el ataque:
+el daño lo hace luego otro código que lea una propiedad esperando que sea
+suya. Medido aquí el 2026-09-14:
+
+| | |
+|---|---|
+| La versión | `jsexternal/jquery-3.3.1.min.js`, y su propio banner lo declara. Cae dentro del rango vulnerable |
+| Quién la carga | Dos páginas: `analysis.html` y `tools/binarydivision/binarydivision.html` |
+| La llamada vulnerable | **Cero**. No hay ni un `$.extend` en el código del proyecto |
+| La vía interna | Tampoco. Lo único de jQuery que llega al mezclado profundo con datos de quien llama es `$.ajax` / `$.ajaxSetup`, y no se usa ninguno: la página no mezcla objetos en ningún sitio |
+| Qué disparó la alerta | No hay `package.json` ni fichero de bloqueo en el repositorio, así que lo único que GitHub ha podido casar es **el fichero vendorizado** |
+
+O sea: **no hay camino por el que llegue una entrada externa a la función
+vulnerable**, y la alerta no se cierra sola por eso, porque el reproche es
+publicar una librería con un CVE conocido. Y 3.3.1 arrastra además el par
+CVE-2020-11022 y CVE-2020-11023, el XSS de `.html()` que se arregló en 3.5.0,
+que sí toca el sumidero que esta página usa siete veces.
+
+**La salida barata es subir a 3.7.1.** La superficie que se usa son trece
+métodos (`html`, `click`, `empty`, `each`, `text`, `width`, `show`, `hide`,
+`css`, `attr`, `resize`, `prepend`, `append`), todos estables en toda la rama 3.
+Lo único que hay que **mirar** es el cambio de 3.5: `htmlPrefilter` dejó de
+reparar las etiquetas autocerradas que no son void, y las únicas que este
+proyecto genera son los `<line .../>` que escribe `js/binarydivision.js`, un SVG
+que entra en el DOM por `$('#canvas').html(...)` en `analysis.html:897`. Se
+comprueba abriendo la página y viendo si el árbol se dibuja. La otra salida,
+más larga, es quitar jQuery: trece métodos son todos triviales en DOM nativo.
+
+⚠️ **Y el mismo vicio, de verdad y en casa: `?q=` deja pasar los nombres de
+`Object.prototype`.** El guardián de `Run()` es `if (logograms[char] ===
+undefined)`, y `logograms` es un objeto literal, así que hereda. Medido con el
+navegador: `?q=zzz` avisa bien, pero **`?q=constructor` no avisa** y deja la
+página con el 躑 de relleno que trae el HTML, como si hubiera abierto algo.
+Pasan cinco: `constructor`, `toString`, `valueOf`, `hasOwnProperty` y
+`__proto__`. **No es una inyección**: esos cinco nombres no llevan comilla ni
+`<`, y el único `.html()` por el que `char` viaja lo mete dentro de un `href`.
+Es robustez, y la cura es una línea:
+`Object.prototype.hasOwnProperty.call(logograms, char)`, o construir el dato con
+`Object.create(null)`. Vale la pena hacerla porque es el mismo error de clase
+que el CVE de arriba, y este sí es nuestro.
+
 ⚠️ **Las URLs viejas mueren al desplegar.** Las seis `DataTables_*.html` y
 `DataQuery.html` están publicadas en Neocities; el próximo `pf.py deploy` las
 borrará con `--delete`. Los enlaces del artículo y del índice ya apuntan a
@@ -152,20 +197,29 @@ añadieron 54 px abajo para las etiquetas terminales. Vienen probados de
 (`analysis.html` y `tools/binarydivision/`) y **conviene abrir los dos y mirar**
 antes de desplegar.
 
-⚠️ **El README está del revés respecto de la regla nueva.** El `CLAUDE.md` del
-taller, corregido el 2026-09-14, dice que **mientras se trabaja hay un solo
-`README.md` y va en castellano**, y que el par solo se parte al publicar, siendo
-entonces `README.es.md` el original y `README.md` la traducción. Aquí pasa lo
-contrario: **el único README es el inglés y el castellano no existe**, así que no
-hay original del que salga la copia. Este proyecto es uno de los tres de la casa
-en esa situación, con `basic_graph_editor` y `hierarchical-diagram-builder`.
+⚠️ **El par de README está partido, y le falta la mitad que escribe el guion.**
+El `README.es.md` existe desde el 2026-09-14, por decisión del usuario: si el
+proyecto publica artículos en castellano, debe tener su README en castellano. La
+prosa está traducida entera, **223 líneas**, pero las doce secciones de cifras
+no, porque no se escriben a mano: las genera `tools/build_stats.py`, que hoy
+**solo sabe inglés**. Esa sección del castellano queda vacía, con una marca que
+dice por qué y un enlace al bloque inglés, a propósito, para que se note.
 
-Arreglarlo es traducir hacia atrás, y arrastra a `tools/build_stats.py`, que el
-2026-09-14 se pasó al inglés para ir a juego con el fichero en el que escribe y
-tendría que volver al castellano. **No se ha tocado**: es trabajo real y la
-página ya está publicada en inglés, así que la decisión es del usuario. Las dos
-salidas son dejarlo como está y anotar la excepción, o escribir el castellano y
-que el inglés pase a ser lo que se genera al publicar.
+El coste de cerrarlo está medido: **190 llamadas a `w()` con literal, 8 KB de
+prosa inglesa dentro del guion, y 58 de ellas llevan formato `%`**, que es la
+parte incómoda, porque hoy el formato se aplica *antes* de emitir y eso impide
+buscar la cadena en una tabla de traducción. Tres salidas:
+
+| | |
+|---|---|
+| Una tabla `{inglés: castellano}` y `w()` que traduce al emitir | Mínimo destrozo en `build()`, y lo que falte **cae en inglés y se ve**. Exige separar plantilla y argumentos en las 58 con formato |
+| `build(idioma)` con las cadenas en un diccionario por clave | Más limpio de leer y más caro de escribir: toca las 190 |
+| Sacar el bloque a un `STATS.md` generado y que los dos README enlacen | Cierra de paso que las estadísticas no se publiquen, pero deja las cifras en un solo idioma |
+
+Y hay una consecuencia de convenio: la casa dice que **el castellano es el
+original y el inglés la copia**, pero aquí el inglés es el que existía y está
+publicado. Mientras el guion no sepa castellano, el original de verdad de esas
+doce secciones es el inglés, y conviene no fingir lo contrario.
 
 ⚠️ **`tools/binarydivision/readme/` sigue llamándose así, y con `readme.md` en
 minúsculas.** El `readme/` de la raíz desapareció el 2026-09-14; este no se tocó

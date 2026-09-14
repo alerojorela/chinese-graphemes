@@ -1,5 +1,71 @@
 # CHANGELOG
 
+## 2026-09-14 23:28 · `phsemgram` pasa a llamarse `chinese-graphemes`, y nace el README castellano
+
+**El nombre viejo era una abreviatura que no decía nada fuera de casa.** De los
+candidatos, `phonosemantograms` nombraba el fenómeno y no la herramienta y dejaba
+fuera la palabra «Chinese», por la que alguien puede llegar; `chinese writing`
+prometía un tratado donde hay un visor. Gana `chinese-graphemes` por dos apoyos
+que ya estaban escritos: **es la URL publicada** (`writing/chineseGraphemes`, que
+no se mueve) y **es el término más usado del README**, 27 veces, más que ningún
+otro. Repositorio y dirección dicen por fin lo mismo.
+
+**Renombrado en GitHub por el usuario, con la redirección que pone GitHub sola**,
+y aquí el directorio, el `origin` y las referencias. Se reescribieron **37
+menciones vivas** en 15 ficheros, maquinaria incluida (`despliegue.yaml`,
+`proyectos.yaml`, `pf.py` y los permisos de `.claude/settings.json`), y se
+dejaron **18 intactas**: las quince de los tres `CHANGELOG.md` y las tres del
+Registro del `CLAUDE.md` de la raíz. Eso es crónica y no se reescribe, igual que
+se hizo con `portfolio/` → `taller/`. `panel.html` no se tocó porque lo genera
+`tools/portal.py`. Comprobado después: `pf.py verifica` dice «Todo cuadra» y el
+remoto nuevo responde.
+
+**Y el `README.es.md`, que llevaba dos vueltas descartado, se escribe.** El
+argumento del usuario zanja la discusión anterior: **si el proyecto publica
+artículos en castellano, debe tener su README en castellano.** La prosa va
+entera, 223 líneas. Lo que no va son las doce secciones de cifras, porque no se
+escriben a mano: las genera `tools/build_stats.py`, que solo sabe inglés. Esa
+sección queda **vacía con una marca que dice por qué**, en vez de copiar el
+inglés dentro del castellano, que es como nacen los documentos que divergen en
+silencio.
+
+**El coste de cerrarlo está medido**, y está en el `TODO.md` con tres salidas:
+190 llamadas a `w()` con literal, 8 KB de prosa inglesa dentro del guion y 58 de
+ellas con formato `%`, que es la parte incómoda, pues hoy el formato se aplica
+antes de emitir y eso impide buscar la cadena en una tabla.
+
+**De paso, dos palabras.** La casa escribía «fonosemagrama» en `taller/README.md`
+y en `proyectos.yaml` y «fonosemantograma» en el `TODO.md` de aquí; queda
+«fonosemantograma», que es el que usa el artículo y el que existe fuera de casa.
+
+## 2026-09-14 21:58 · La alerta de jQuery, medida, y un agujero propio del mismo tipo
+
+**GitHub avisa de CVE-2019-11358 y la alerta es cierta en la versión, no en la
+página.** `jsexternal/jquery-3.3.1.min.js` cae dentro del rango vulnerable, eso
+no se discute. Lo que se midió es si hay camino hasta la función culpable, y no
+lo hay: **cero `$.extend`** en el código del proyecto, y **cero `$.ajax` o
+`$.ajaxSetup`**, que es la única vía interna de jQuery que llega al mezclado
+profundo con datos de quien llama. La página no mezcla objetos en ningún sitio.
+Tampoco hay `package.json` ni fichero de bloqueo en el repositorio, así que lo
+único que GitHub ha podido casar es el fichero vendorizado.
+
+**Pero el mismo error de clase sí está en casa, y ese es nuestro.** El guardián
+de `Run()` pregunta `logograms[char] === undefined` sobre un objeto literal, que
+hereda de `Object.prototype`. Comprobado con el navegador sobre `analysis.html`:
+`?q=zzz` avisa bien, pero **`?q=constructor` no avisa** y deja la página con el
+躑 de relleno del HTML, como si hubiera abierto algo. Pasan cinco nombres
+(`constructor`, `toString`, `valueOf`, `hasOwnProperty`, `__proto__`) y ninguno
+es inyectable, porque no llevan comilla ni `<` y el único `.html()` que los
+tocaría los mete dentro de un `href`. Es robustez, no seguridad, y se cura con
+`hasOwnProperty.call`.
+
+**Anotado en `TODO.md`, no arreglado.** La salida de la alerta es subir a 3.7.1:
+la superficie usada son trece métodos, todos estables en la rama 3, y lo único
+que hay que mirar es el cambio de 3.5 con las etiquetas autocerradas, que aquí
+afecta a los `<line .../>` del SVG de `js/binarydivision.js`. Subir la librería
+sin abrir la página no sería medir, y tocar dos páginas no entraba en el
+encargo.
+
 ## 2026-09-14 21:43 · Fuera el histórico del README, y el castellano no se recrea
 
 **El README contaba de dónde venía `browse.html` y a nadie le sirve.** Lo dijo el
