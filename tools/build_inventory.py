@@ -28,7 +28,7 @@ NOTES = {
     'analysis.html': 'El visor de UN carácter: descomposición, taxogrid y navegador radial. Los árboles se fueron a browse.html.',
     'analysis.js': 'Recorre la descomposición y anota recursividad. Aquí se mide la divisibilidad.',
     'article.html': 'El artículo, en inglés: «Recursion in Chinese phonosemantograms». Traducción de article.es.html.',
-    'article.es.html': 'El artículo, y el original: «Recursividad en los fonosemagramas chinos». Manda este.',
+    'article.es.html': 'El artículo, y el original: «Recursividad en los fonosemantogramas chinos». Manda este.',
     'phonetictree.js': 'Árboles ascendentes, las dos vistas. Vive en browse.html: es vista del conjunto, no del carácter.',
     'phonetictree.css': 'Estilo de los árboles. El color dice qué estadio de la lengua justifica el enlace.',
     'radialdiagram.js': 'Diagrama radial con d3 v3. Llevaba años con «dominant-middle», que no es atributo SVG.',

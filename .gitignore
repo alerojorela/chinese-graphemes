@@ -1,19 +1,19 @@
-# ── Particular de esta casa, desde el 2026-09-14 ──────────────────────────
-# ⚠️ En .gitignore el `#` solo abre comentario al principio de la línea. Un
-# comentario al final formaría parte del patrón y la regla no casaría con
-# nada, en silencio. Por eso cada explicación va en su propia línea.
+# ── This house's own block, since 2026-09-14 ──────────────────────────────
+# ⚠️ In .gitignore, `#` only opens a comment at the start of a line. A comment
+# at the end would be part of the pattern, and the rule would then match
+# nothing, in silence. That is why every explanation gets its own line.
 
-# Cómo se trabaja en esta casa: cita el tronco del portfolio y no significa
-# nada fuera de él.
+# How this house works: it cites the workshop trunk and means nothing outside
+# it.
 CLAUDE.md
-# Permisos y ajustes locales del agente. Han llevado una credencial dentro.
+# The agent's local permissions and settings. They have carried a credential.
 .claude/
-# «Esto no se publica». Lleva el cero desde el 2026-09-12, y las reglas que
-# decían `OFFLINE` sin él llevaban desde entonces sin casar con nada.
+# «This is not published». It has carried the zero since 2026-09-12, and rules
+# that said `OFFLINE` without it had matched nothing ever since.
 0OFFLINE/
-# PID y registros de los servidores de la casa.
+# PIDs and logs of the house servers.
 .servers/
-# Sesiones de Telethon: son una llave completa, entran sin contraseña.
+# Telethon sessions: a whole key, they get in with no password.
 *.session
 
 # ── Secretos y entorno ────────────────────────────────────────────────────
@@ -25,3 +25,10 @@ venv/
 env/
 __pycache__/
 *.py[cod]
+
+# ── Common block of the house, completed 2026-09-15 ───────────────────────
+# Whatever a service here writes while it runs. Machine paths and, when
+# something fails, whole tracebacks: the record of a run, not of the program.
+# It goes in even where nothing writes a log yet, because the day something
+# starts to, nobody will remember to come back and add the rule.
+logs/
